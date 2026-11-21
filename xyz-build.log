@@ -1,18 +1,18 @@
 #0 building with "default" instance using docker driver
 
 #1 [internal] load build definition from Dockerfile
-#1 transferring dockerfile: 3.05kB done
+#1 transferring dockerfile: 3.13kB done
 #1 DONE 0.0s
 
 #2 resolve image config for docker-image://docker.io/docker/dockerfile:1
-#2 DONE 0.4s
+#2 DONE 0.7s
 
 #3 docker-image://docker.io/docker/dockerfile:1@sha256:572cebbc2b15e6f84c077742952674889cb63cd5e9b80abdffcbe587b6f19183
 #3 resolve docker.io/docker/dockerfile:1@sha256:572cebbc2b15e6f84c077742952674889cb63cd5e9b80abdffcbe587b6f19183 0.0s done
 #3 CACHED
 
 #4 [internal] load metadata for docker.io/nvidia/cuda:13.5.0-devel-ubuntu26.04
-#4 DONE 1.3s
+#4 DONE 0.7s
 
 #5 [internal] load .dockerignore
 #5 transferring context: 2B done
@@ -20,910 +20,429 @@
 
 #6 [build 1/6] FROM docker.io/nvidia/cuda:13.5.0-devel-ubuntu26.04@sha256:cafb2ca8fcffb6669cd80b929830de884bd12bb6eb364b474e8fe99108249d1e
 #6 resolve docker.io/nvidia/cuda:13.5.0-devel-ubuntu26.04@sha256:cafb2ca8fcffb6669cd80b929830de884bd12bb6eb364b474e8fe99108249d1e 0.0s done
-#6 DONE 0.3s
+#6 DONE 0.0s
 
-#6 [build 1/6] FROM docker.io/nvidia/cuda:13.5.0-devel-ubuntu26.04@sha256:cafb2ca8fcffb6669cd80b929830de884bd12bb6eb364b474e8fe99108249d1e
-#6 sha256:21be064db973a86857ff6e38fb383bd531538854a97f11044e46c6d846a76020 0B / 90.42kB 0.2s
-#6 sha256:21be064db973a86857ff6e38fb383bd531538854a97f11044e46c6d846a76020 90.42kB / 90.42kB 0.2s done
-#6 sha256:2b184055358c29b638fe63ad72f5468c71678dbc89ab807bcea57c4a0bbb1e03 221B / 221B 0.3s done
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 0B / 3.04GB 0.2s
-#6 sha256:abc658c17cdcf51eb7f4d85912eac6475984fcdb3938f6ac37758139a2deb7aa 0B / 1.52kB 0.2s
-#6 sha256:abc658c17cdcf51eb7f4d85912eac6475984fcdb3938f6ac37758139a2deb7aa 1.52kB / 1.52kB 0.4s done
-#6 sha256:fdaed1e979bd98b0b5169bb488ae15a3f3b72ce28a425c71483a5544a9b87156 0B / 1.68kB 0.2s
-#6 sha256:fdaed1e979bd98b0b5169bb488ae15a3f3b72ce28a425c71483a5544a9b87156 1.68kB / 1.68kB 0.2s done
-#6 sha256:144fc2bd42a9341f14f57619034112a41d862b6399b261c0744bd172c1f7823e 61.35kB / 61.35kB 0.2s done
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 0B / 1.75GB 0.2s
-#6 sha256:61913d361b867bde8133062f6d92f1e9aab0e033e9fbf0fff656d484b2639dce 6.89kB / 6.89kB 0.1s done
-#6 sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 32B / 32B 0.1s done
-#6 sha256:35a8d77d12e86846049b73aefc1d9ca23eee5acb217dcc8904dc0c9923f6e8f4 186B / 186B 0.2s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 0B / 165.52MB 0.2s
-#6 sha256:35a8d77d12e86846049b73aefc1d9ca23eee5acb217dcc8904dc0c9923f6e8f4 186B / 186B 0.2s done
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 8.39MB / 165.52MB 0.5s
-#6 sha256:54582905f33103cbf42e31bce423f9db726b6c4c51b363cb9dd9c3dfa707fb71 434.56kB / 434.56kB 0.3s done
-#6 sha256:19b47ed03b1192672ca73c6949e3d604d6a4487c7022756940bf829579d013b9 0B / 7.79MB 0.2s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 22.02MB / 165.52MB 0.8s
-#6 sha256:19b47ed03b1192672ca73c6949e3d604d6a4487c7022756940bf829579d013b9 7.79MB / 7.79MB 0.4s done
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 34.60MB / 165.52MB 1.1s
-#6 sha256:f3f25b84a7d74315d94ee4108231f8f5e0cd2a44725a7204d5dd6ce91c151697 392B / 392B 0.2s done
-#6 sha256:edafa32f5d9e4d9629f0dbc6c01e63c79ff08133c01cfb7d3363aa8bd8a614cf 0B / 42.14MB 0.2s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 47.19MB / 165.52MB 1.4s
-#6 sha256:edafa32f5d9e4d9629f0dbc6c01e63c79ff08133c01cfb7d3363aa8bd8a614cf 8.39MB / 42.14MB 0.3s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 95.42MB / 1.75GB 1.8s
-#6 sha256:edafa32f5d9e4d9629f0dbc6c01e63c79ff08133c01cfb7d3363aa8bd8a614cf 18.87MB / 42.14MB 0.5s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 58.72MB / 165.52MB 1.7s
-#6 sha256:edafa32f5d9e4d9629f0dbc6c01e63c79ff08133c01cfb7d3363aa8bd8a614cf 27.26MB / 42.14MB 0.6s
-#6 sha256:edafa32f5d9e4d9629f0dbc6c01e63c79ff08133c01cfb7d3363aa8bd8a614cf 42.14MB / 42.14MB 0.9s done
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 70.25MB / 165.52MB 2.0s
-#6 extracting sha256:edafa32f5d9e4d9629f0dbc6c01e63c79ff08133c01cfb7d3363aa8bd8a614cf
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 87.03MB / 165.52MB 2.3s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 96.47MB / 165.52MB 2.4s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 105.91MB / 165.52MB 2.6s
-#6 extracting sha256:edafa32f5d9e4d9629f0dbc6c01e63c79ff08133c01cfb7d3363aa8bd8a614cf 0.6s done
-#6 extracting sha256:f3f25b84a7d74315d94ee4108231f8f5e0cd2a44725a7204d5dd6ce91c151697 0.0s done
-#6 extracting sha256:19b47ed03b1192672ca73c6949e3d604d6a4487c7022756940bf829579d013b9 0.1s done
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 115.34MB / 165.52MB 2.7s
-#6 extracting sha256:54582905f33103cbf42e31bce423f9db726b6c4c51b363cb9dd9c3dfa707fb71 0.0s done
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 124.78MB / 165.52MB 2.9s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 189.79MB / 1.75GB 3.3s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 135.27MB / 165.52MB 3.0s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 144.70MB / 165.52MB 3.2s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 154.14MB / 165.52MB 3.3s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 162.53MB / 165.52MB 3.5s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 158.33MB / 3.04GB 4.4s
-#6 sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 165.52MB / 165.52MB 3.7s done
-#6 extracting sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 285.21MB / 1.75GB 4.8s
-#6 extracting sha256:21a22e3137439c46f6dad8087dac2377eb30eb2afa564e8ec58cf08009905738 1.3s done
-#6 extracting sha256:4f4fb700ef54461cfa02571ae0db9a0dc1e0cdb5577484a6d75e68dc38e8acc1 0.0s done
-#6 extracting sha256:35a8d77d12e86846049b73aefc1d9ca23eee5acb217dcc8904dc0c9923f6e8f4 0.0s done
-#6 extracting sha256:61913d361b867bde8133062f6d92f1e9aab0e033e9fbf0fff656d484b2639dce 0.0s done
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 381.68MB / 1.75GB 6.3s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 312.48MB / 3.04GB 7.2s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 476.05MB / 1.75GB 7.8s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 569.38MB / 1.75GB 9.3s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 468.71MB / 3.04GB 10.2s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 659.55MB / 1.75GB 11.0s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 749.73MB / 1.75GB 12.5s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 622.85MB / 3.04GB 12.9s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 843.06MB / 1.75GB 14.0s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 778.04MB / 3.04GB 15.6s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 933.23MB / 1.75GB 15.5s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.03GB / 1.75GB 17.0s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 934.28MB / 3.04GB 18.6s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.12GB / 1.75GB 18.5s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.22GB / 1.75GB 20.0s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 1.09GB / 3.04GB 21.3s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.31GB / 1.75GB 21.6s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.40GB / 1.75GB 23.1s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 1.24GB / 3.04GB 24.2s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.49GB / 1.75GB 24.6s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.58GB / 1.75GB 26.1s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 1.40GB / 3.04GB 27.3s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.67GB / 1.75GB 27.6s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 1.56GB / 3.04GB 30.0s
-#6 sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 1.75GB / 1.75GB 29.5s done
-#6 extracting sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 1.72GB / 3.04GB 32.7s
-#6 extracting sha256:a9a37442d956b36eee168b912502d1b01ed75e6f4a102934b1d5df1a3d75f9d9 4.7s done
-#6 extracting sha256:144fc2bd42a9341f14f57619034112a41d862b6399b261c0744bd172c1f7823e 0.0s done
-#6 extracting sha256:fdaed1e979bd98b0b5169bb488ae15a3f3b72ce28a425c71483a5544a9b87156 0.0s done
-#6 extracting sha256:abc658c17cdcf51eb7f4d85912eac6475984fcdb3938f6ac37758139a2deb7aa 0.0s done
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 1.88GB / 3.04GB 35.7s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 2.04GB / 3.04GB 39.2s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 2.19GB / 3.04GB 42.2s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 2.35GB / 3.04GB 45.2s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 2.51GB / 3.04GB 48.3s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 2.66GB / 3.04GB 51.9s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 2.82GB / 3.04GB 55.4s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 2.97GB / 3.04GB 58.2s
-#6 sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 3.04GB / 3.04GB 60.4s done
-#6 extracting sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb
-#6 extracting sha256:a129fd7370d8e27ce6e9816cc7c41f22c11b74ba70b3f3e67b20cb9b45d75deb 13.4s done
-#6 extracting sha256:2b184055358c29b638fe63ad72f5468c71678dbc89ab807bcea57c4a0bbb1e03
-#6 extracting sha256:2b184055358c29b638fe63ad72f5468c71678dbc89ab807bcea57c4a0bbb1e03 0.0s done
-#6 extracting sha256:21be064db973a86857ff6e38fb383bd531538854a97f11044e46c6d846a76020 0.0s done
-#6 DONE 74.2s
+#7 [build 3/6] RUN test -n "https://github.com/xyznq1/xyz-llama" && test -n "f095f4dd559cdb742c9b3ed71b7131855179f935"  && git clone "https://github.com/xyznq1/xyz-llama" /src && git -C /src checkout "f095f4dd559cdb742c9b3ed71b7131855179f935"
+#7 CACHED
 
-#7 [build 2/6] RUN apt-get update && apt-get install -y --no-install-recommends     git cmake build-essential ca-certificates libssl-dev libcurl4-openssl-dev  && rm -rf /var/lib/apt/lists/*
-#7 0.205 Get:1 http://security.ubuntu.com/ubuntu resolute-security InRelease [137 kB]
-#7 0.255 Get:2 http://archive.ubuntu.com/ubuntu resolute InRelease [136 kB]
-#7 0.370 Get:3 http://security.ubuntu.com/ubuntu resolute-security/universe amd64 Packages [278 kB]
-#7 0.444 Get:4 http://archive.ubuntu.com/ubuntu resolute-updates InRelease [137 kB]
-#7 0.463 Get:5 http://security.ubuntu.com/ubuntu resolute-security/multiverse amd64 Packages [24.6 kB]
-#7 0.464 Get:6 http://security.ubuntu.com/ubuntu resolute-security/restricted amd64 Packages [723 kB]
-#7 0.521 Get:7 http://security.ubuntu.com/ubuntu resolute-security/main amd64 Packages [885 kB]
-#7 0.617 Get:8 http://archive.ubuntu.com/ubuntu resolute-backports InRelease [137 kB]
-#7 0.683 Get:9 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages [1874 kB]
-#7 0.724 Get:10 http://archive.ubuntu.com/ubuntu resolute/universe amd64 Packages [20.1 MB]
-#7 0.753 Get:11 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2604/x86_64  InRelease [1578 B]
-#7 0.769 Get:12 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2604/x86_64  Packages [473 kB]
-#7 0.889 Get:13 http://archive.ubuntu.com/ubuntu resolute/multiverse amd64 Packages [352 kB]
-#7 0.896 Get:14 http://archive.ubuntu.com/ubuntu resolute/restricted amd64 Packages [189 kB]
-#7 0.901 Get:15 http://archive.ubuntu.com/ubuntu resolute-updates/multiverse amd64 Packages [26.1 kB]
-#7 0.905 Get:16 http://archive.ubuntu.com/ubuntu resolute-updates/universe amd64 Packages [497 kB]
-#7 0.912 Get:17 http://archive.ubuntu.com/ubuntu resolute-updates/restricted amd64 Packages [773 kB]
-#7 0.920 Get:18 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 Packages [1110 kB]
-#7 0.931 Get:19 http://archive.ubuntu.com/ubuntu resolute-backports/universe amd64 Packages [3308 B]
-#7 1.396 Fetched 27.9 MB in 1s (22.1 MB/s)
-#7 1.396 Reading package lists...
-#7 1.785 Reading package lists...
-#7 2.198 Building dependency tree...
-#7 2.311 Reading state information...
-#7 2.331 build-essential is already the newest version (12.12ubuntu2.26.04.2).
-#7 2.331 build-essential set to manually installed.
-#7 2.331 Solving dependencies...
-#7 2.417 The following additional packages will be installed:
-#7 2.417   cmake-data comerr-dev git-man krb5-multidev libarchive13t64 libbrotli-dev
-#7 2.417   libbrotli1 libcurl3t64-gnutls libcurl4t64 liberror-perl libevent-2.1-7t64
-#7 2.417   libexpat1 libgmp-dev libgmpxx4ldbl libgnutls-dane0t64 libgnutls-openssl27t64
-#7 2.417   libgnutls28-dev libgssapi-krb5-2 libgssrpc4t64 libidn2-dev libjsoncpp26
-#7 2.417   libk5crypto3 libkadm5clnt-mit12 libkadm5srv-mit12 libkdb5-10t64 libkeyutils1
-#7 2.417   libkrb5-3 libkrb5-dev libkrb5support0 libldap-dev libnghttp2-14
-#7 2.418   libnghttp2-dev libp11-kit-dev libpkgconf7 libpsl-dev libpsl5t64 librhash1
-#7 2.418   librtmp-dev librtmp1 libssh2-1-dev libssh2-1t64 libtasn1-6-dev libunbound8
-#7 2.418   libuv1t64 libxml2-16 libzstd-dev nettle-dev pkgconf pkgconf-bin zlib1g-dev
-#7 2.419 Suggested packages:
-#7 2.419   cmake-doc cmake-format elpa-cmake-mode ninja-build doc-base gettext-base
-#7 2.419   git-doc git-email git-gui gitk gitweb git-cvs git-svn krb5-doc lrzip
-#7 2.419   libcurl4-doc libidn-dev gmp-doc libgmp10-doc libmpfr-dev dns-root-data
-#7 2.419   gnutls-bin gnutls-doc krb5-user libnghttp2-doc p11-kit-doc libssl-doc
-#7 2.419 Recommended packages:
-#7 2.419   less ssh-client krb5-locales publicsuffix libtasn1-doc
-#7 2.457 The following NEW packages will be installed:
-#7 2.457   cmake cmake-data comerr-dev git git-man krb5-multidev libarchive13t64
-#7 2.457   libbrotli-dev libbrotli1 libcurl3t64-gnutls libcurl4-openssl-dev libcurl4t64
-#7 2.457   liberror-perl libevent-2.1-7t64 libexpat1 libgmp-dev libgmpxx4ldbl
-#7 2.457   libgnutls-dane0t64 libgnutls-openssl27t64 libgnutls28-dev libgssapi-krb5-2
-#7 2.457   libgssrpc4t64 libidn2-dev libjsoncpp26 libk5crypto3 libkadm5clnt-mit12
-#7 2.457   libkadm5srv-mit12 libkdb5-10t64 libkeyutils1 libkrb5-3 libkrb5-dev
-#7 2.457   libkrb5support0 libldap-dev libnghttp2-14 libnghttp2-dev libp11-kit-dev
-#7 2.457   libpkgconf7 libpsl-dev libpsl5t64 librhash1 librtmp-dev librtmp1
-#7 2.457   libssh2-1-dev libssh2-1t64 libssl-dev libtasn1-6-dev libunbound8 libuv1t64
-#7 2.458   libxml2-16 libzstd-dev nettle-dev pkgconf pkgconf-bin zlib1g-dev
-#7 2.458 The following packages will be upgraded:
-#7 2.459   ca-certificates
-#7 2.494 1 upgraded, 54 newly installed, 0 to remove and 14 not upgraded.
-#7 2.494 Need to get 35.5 MB of archives.
-#7 2.494 After this operation, 138 MB of additional disk space will be used.
-#7 2.494 Get:1 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libexpat1 amd64 2.7.4-1ubuntu0.2 [98.8 kB]
-#7 2.514 Get:2 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 ca-certificates all 20260816ubuntu0.26.04.2 [138 kB]
-#7 2.521 Get:3 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libkrb5support0 amd64 1.22.1-2ubuntu4.1 [33.5 kB]
-#7 2.526 Get:4 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libk5crypto3 amd64 1.22.1-2ubuntu4.1 [82.0 kB]
-#7 2.531 Get:5 http://archive.ubuntu.com/ubuntu resolute/main amd64 libkeyutils1 amd64 1.6.3-6ubuntu3 [10.6 kB]
-#7 2.537 Get:6 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libkrb5-3 amd64 1.22.1-2ubuntu4.1 [361 kB]
-#7 2.546 Get:7 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libgssapi-krb5-2 amd64 1.22.1-2ubuntu4.1 [147 kB]
-#7 2.551 Get:8 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libxml2-16 amd64 2.15.2+dfsg-0.1ubuntu0.3 [607 kB]
-#7 2.563 Get:9 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libnghttp2-14 amd64 1.68.0-2ubuntu0.2 [71.0 kB]
-#7 2.568 Get:10 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpsl5t64 amd64 0.21.2-1.1build2 [59.5 kB]
-#7 2.574 Get:11 http://archive.ubuntu.com/ubuntu resolute/main amd64 libuv1t64 amd64 1.51.0-2ubuntu1 [103 kB]
-#7 2.579 Get:12 http://archive.ubuntu.com/ubuntu resolute/main amd64 cmake-data all 4.2.3-2ubuntu2 [2581 kB]
-#7 2.602 Get:13 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libarchive13t64 amd64 3.8.5-1ubuntu2.3 [397 kB]
-#7 2.610 Get:14 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libbrotli1 amd64 1.2.0-3ubuntu0.1 [343 kB]
-#7 2.617 Get:15 http://archive.ubuntu.com/ubuntu resolute/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-3 [59.0 kB]
-#7 2.626 Get:16 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libssh2-1t64 amd64 1.11.1-1ubuntu0.26.04.4 [138 kB]
-#7 2.635 Get:17 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl4t64 amd64 8.18.0-1ubuntu2.8 [430 kB]
-#7 2.640 Get:18 http://archive.ubuntu.com/ubuntu resolute/main amd64 libjsoncpp26 amd64 1.9.6-5 [84.0 kB]
-#7 2.648 Get:19 http://archive.ubuntu.com/ubuntu resolute/main amd64 librhash1 amd64 1.4.6-1.1 [133 kB]
-#7 2.652 Get:20 http://archive.ubuntu.com/ubuntu resolute/main amd64 cmake amd64 4.2.3-2ubuntu2 [13.7 MB]
-#7 2.763 Get:21 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl3t64-gnutls amd64 8.18.0-1ubuntu2.8 [421 kB]
-#7 2.770 Get:22 http://archive.ubuntu.com/ubuntu resolute/main amd64 liberror-perl all 0.17030-1 [23.5 kB]
-#7 2.775 Get:23 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 git-man all 1:2.53.0-1ubuntu1.1 [1197 kB]
-#7 2.787 Get:24 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 git amd64 1:2.53.0-1ubuntu1.1 [4223 kB]
-#7 2.824 Get:25 http://archive.ubuntu.com/ubuntu resolute/main amd64 comerr-dev amd64 2.1-1.47.2-3ubuntu4 [44.6 kB]
-#7 2.830 Get:26 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libgssrpc4t64 amd64 1.22.1-2ubuntu4.1 [57.9 kB]
-#7 2.835 Get:27 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libkadm5clnt-mit12 amd64 1.22.1-2ubuntu4.1 [40.2 kB]
-#7 2.840 Get:28 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libkdb5-10t64 amd64 1.22.1-2ubuntu4.1 [41.6 kB]
-#7 2.846 Get:29 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libkadm5srv-mit12 amd64 1.22.1-2ubuntu4.1 [55.2 kB]
-#7 2.853 Get:30 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 krb5-multidev amd64 1.22.1-2ubuntu4.1 [126 kB]
-#7 2.861 Get:31 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libbrotli-dev amd64 1.2.0-3ubuntu0.1 [364 kB]
-#7 2.870 Get:32 http://archive.ubuntu.com/ubuntu resolute/main amd64 libidn2-dev amd64 2.3.8-4build1 [121 kB]
-#7 2.875 Get:33 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libkrb5-dev amd64 1.22.1-2ubuntu4.1 [11.9 kB]
-#7 2.884 Get:34 http://archive.ubuntu.com/ubuntu resolute/main amd64 libldap-dev amd64 2.6.10+dfsg-1ubuntu5 [315 kB]
-#7 2.892 Get:35 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpkgconf7 amd64 2.5.1-4 [38.8 kB]
-#7 2.897 Get:36 http://archive.ubuntu.com/ubuntu resolute/main amd64 pkgconf-bin amd64 2.5.1-4 [22.7 kB]
-#7 2.904 Get:37 http://archive.ubuntu.com/ubuntu resolute/main amd64 pkgconf amd64 2.5.1-4 [20.0 kB]
-#7 2.909 Get:38 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libnghttp2-dev amd64 1.68.0-2ubuntu0.2 [114 kB]
-#7 2.916 Get:39 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpsl-dev amd64 0.21.2-1.1build2 [78.7 kB]
-#7 2.923 Get:40 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgmpxx4ldbl amd64 2:6.3.0+dfsg-5ubuntu2 [9956 B]
-#7 2.928 Get:41 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgmp-dev amd64 2:6.3.0+dfsg-5ubuntu2 [342 kB]
-#7 2.937 Get:42 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libevent-2.1-7t64 amd64 2.1.12-stable-10ubuntu0.2 [145 kB]
-#7 2.945 Get:43 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libunbound8 amd64 1.24.2-1ubuntu2.4 [461 kB]
-#7 2.954 Get:44 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libgnutls-dane0t64 amd64 3.8.12-2ubuntu1.1 [25.3 kB]
-#7 2.959 Get:45 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libgnutls-openssl27t64 amd64 3.8.12-2ubuntu1.1 [25.5 kB]
-#7 2.964 Get:46 http://archive.ubuntu.com/ubuntu resolute/main amd64 libp11-kit-dev amd64 0.26.2-2 [30.9 kB]
-#7 2.970 Get:47 http://archive.ubuntu.com/ubuntu resolute/main amd64 libtasn1-6-dev amd64 4.21.0-2 [92.4 kB]
-#7 2.977 Get:48 http://archive.ubuntu.com/ubuntu resolute/main amd64 nettle-dev amd64 3.10.2-1 [1176 kB]
-#7 2.994 Get:49 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libgnutls28-dev amd64 3.8.12-2ubuntu1.1 [1107 kB]
-#7 3.009 Get:50 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 zlib1g-dev amd64 1:1.3.dfsg+really1.3.1-1ubuntu3.2 [895 kB]
-#7 3.021 Get:51 http://archive.ubuntu.com/ubuntu resolute/main amd64 librtmp-dev amd64 2.4+20151223.gitfa8646d.1-3 [69.2 kB]
-#7 3.028 Get:52 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libssl-dev amd64 3.5.5-1ubuntu3.7 [2937 kB]
-#7 3.056 Get:53 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libssh2-1-dev amd64 1.11.1-1ubuntu0.26.04.4 [283 kB]
-#7 3.063 Get:54 http://archive.ubuntu.com/ubuntu resolute/main amd64 libzstd-dev amd64 1.5.7+dfsg-3 [376 kB]
-#7 3.070 Get:55 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl4-openssl-dev amd64 8.18.0-1ubuntu2.8 [546 kB]
-#7 3.158 debconf: unable to initialize frontend: Dialog
-#7 3.158 debconf: (TERM is not set, so the dialog frontend is not usable.)
-#7 3.158 debconf: falling back to frontend: Readline
-#7 3.163 debconf: unable to initialize frontend: Readline
-#7 3.163 debconf: (This frontend requires a controlling tty.)
-#7 3.163 debconf: falling back to frontend: Teletype
-#7 3.167 debconf: unable to initialize frontend: Teletype
-#7 3.167 debconf: (This frontend requires a controlling tty.)
-#7 3.167 debconf: falling back to frontend: Noninteractive
-#7 4.076 Preconfiguring packages ...
-#7 4.281 Fetched 35.5 MB in 1s (58.2 MB/s)
-#7 4.304 Selecting previously unselected package libexpat1:amd64.
-#7 4.304 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 21693 files and directories currently installed.)
-#7 4.309 Preparing to unpack .../00-libexpat1_2.7.4-1ubuntu0.2_amd64.deb ...
-#7 4.316 Unpacking libexpat1:amd64 (2.7.4-1ubuntu0.2) ...
-#7 4.348 Preparing to unpack .../01-ca-certificates_20260816ubuntu0.26.04.2_all.deb ...
-#7 4.360 Unpacking ca-certificates (20260816ubuntu0.26.04.2) over (20260816ubuntu0.26.04.1) ...
-#7 4.642 Selecting previously unselected package libkrb5support0:amd64.
-#7 4.643 Preparing to unpack .../02-libkrb5support0_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 4.646 Unpacking libkrb5support0:amd64 (1.22.1-2ubuntu4.1) ...
-#7 4.682 Selecting previously unselected package libk5crypto3:amd64.
-#7 4.683 Preparing to unpack .../03-libk5crypto3_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 4.687 Unpacking libk5crypto3:amd64 (1.22.1-2ubuntu4.1) ...
-#7 4.716 Selecting previously unselected package libkeyutils1:amd64.
-#7 4.717 Preparing to unpack .../04-libkeyutils1_1.6.3-6ubuntu3_amd64.deb ...
-#7 4.720 Unpacking libkeyutils1:amd64 (1.6.3-6ubuntu3) ...
-#7 4.749 Selecting previously unselected package libkrb5-3:amd64.
-#7 4.750 Preparing to unpack .../05-libkrb5-3_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 4.753 Unpacking libkrb5-3:amd64 (1.22.1-2ubuntu4.1) ...
-#7 4.784 Selecting previously unselected package libgssapi-krb5-2:amd64.
-#7 4.785 Preparing to unpack .../06-libgssapi-krb5-2_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 4.788 Unpacking libgssapi-krb5-2:amd64 (1.22.1-2ubuntu4.1) ...
-#7 4.817 Selecting previously unselected package libxml2-16:amd64.
-#7 4.818 Preparing to unpack .../07-libxml2-16_2.15.2+dfsg-0.1ubuntu0.3_amd64.deb ...
-#7 4.821 Unpacking libxml2-16:amd64 (2.15.2+dfsg-0.1ubuntu0.3) ...
-#7 4.849 Selecting previously unselected package libnghttp2-14:amd64.
-#7 4.850 Preparing to unpack .../08-libnghttp2-14_1.68.0-2ubuntu0.2_amd64.deb ...
-#7 4.853 Unpacking libnghttp2-14:amd64 (1.68.0-2ubuntu0.2) ...
-#7 4.877 Selecting previously unselected package libpsl5t64:amd64.
-#7 4.878 Preparing to unpack .../09-libpsl5t64_0.21.2-1.1build2_amd64.deb ...
-#7 4.881 Unpacking libpsl5t64:amd64 (0.21.2-1.1build2) ...
-#7 4.913 Selecting previously unselected package libuv1t64:amd64.
-#7 4.914 Preparing to unpack .../10-libuv1t64_1.51.0-2ubuntu1_amd64.deb ...
-#7 4.917 Unpacking libuv1t64:amd64 (1.51.0-2ubuntu1) ...
-#7 4.947 Selecting previously unselected package cmake-data.
-#7 4.948 Preparing to unpack .../11-cmake-data_4.2.3-2ubuntu2_all.deb ...
-#7 4.955 Unpacking cmake-data (4.2.3-2ubuntu2) ...
-#7 5.115 Selecting previously unselected package libarchive13t64:amd64.
-#7 5.117 Preparing to unpack .../12-libarchive13t64_3.8.5-1ubuntu2.3_amd64.deb ...
-#7 5.121 Unpacking libarchive13t64:amd64 (3.8.5-1ubuntu2.3) ...
-#7 5.151 Selecting previously unselected package libbrotli1:amd64.
-#7 5.153 Preparing to unpack .../13-libbrotli1_1.2.0-3ubuntu0.1_amd64.deb ...
-#7 5.156 Unpacking libbrotli1:amd64 (1.2.0-3ubuntu0.1) ...
-#7 5.189 Selecting previously unselected package librtmp1:amd64.
-#7 5.191 Preparing to unpack .../14-librtmp1_2.4+20151223.gitfa8646d.1-3_amd64.deb ...
-#7 5.208 Unpacking librtmp1:amd64 (2.4+20151223.gitfa8646d.1-3) ...
-#7 5.243 Selecting previously unselected package libssh2-1t64:amd64.
-#7 5.244 Preparing to unpack .../15-libssh2-1t64_1.11.1-1ubuntu0.26.04.4_amd64.deb ...
-#7 5.251 Unpacking libssh2-1t64:amd64 (1.11.1-1ubuntu0.26.04.4) ...
-#7 5.280 Selecting previously unselected package libcurl4t64:amd64.
-#7 5.281 Preparing to unpack .../16-libcurl4t64_8.18.0-1ubuntu2.8_amd64.deb ...
-#7 5.284 Unpacking libcurl4t64:amd64 (8.18.0-1ubuntu2.8) ...
-#7 5.312 Selecting previously unselected package libjsoncpp26:amd64.
-#7 5.313 Preparing to unpack .../17-libjsoncpp26_1.9.6-5_amd64.deb ...
-#7 5.317 Unpacking libjsoncpp26:amd64 (1.9.6-5) ...
-#7 5.349 Selecting previously unselected package librhash1:amd64.
-#7 5.350 Preparing to unpack .../18-librhash1_1.4.6-1.1_amd64.deb ...
-#7 5.353 Unpacking librhash1:amd64 (1.4.6-1.1) ...
-#7 5.377 Selecting previously unselected package cmake.
-#7 5.378 Preparing to unpack .../19-cmake_4.2.3-2ubuntu2_amd64.deb ...
-#7 5.382 Unpacking cmake (4.2.3-2ubuntu2) ...
-#7 5.535 Selecting previously unselected package libcurl3t64-gnutls:amd64.
-#7 5.537 Preparing to unpack .../20-libcurl3t64-gnutls_8.18.0-1ubuntu2.8_amd64.deb ...
-#7 5.540 Unpacking libcurl3t64-gnutls:amd64 (8.18.0-1ubuntu2.8) ...
-#7 5.567 Selecting previously unselected package liberror-perl.
-#7 5.568 Preparing to unpack .../21-liberror-perl_0.17030-1_all.deb ...
-#7 5.572 Unpacking liberror-perl (0.17030-1) ...
-#7 5.595 Selecting previously unselected package git-man.
-#7 5.596 Preparing to unpack .../22-git-man_1%3a2.53.0-1ubuntu1.1_all.deb ...
-#7 5.600 Unpacking git-man (1:2.53.0-1ubuntu1.1) ...
-#7 5.640 Selecting previously unselected package git.
-#7 5.641 Preparing to unpack .../23-git_1%3a2.53.0-1ubuntu1.1_amd64.deb ...
-#7 5.649 Unpacking git (1:2.53.0-1ubuntu1.1) ...
-#7 5.953 Selecting previously unselected package comerr-dev:amd64.
-#7 5.955 Preparing to unpack .../24-comerr-dev_2.1-1.47.2-3ubuntu4_amd64.deb ...
-#7 5.960 Unpacking comerr-dev:amd64 (2.1-1.47.2-3ubuntu4) ...
-#7 5.989 Selecting previously unselected package libgssrpc4t64:amd64.
-#7 5.991 Preparing to unpack .../25-libgssrpc4t64_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 5.994 Unpacking libgssrpc4t64:amd64 (1.22.1-2ubuntu4.1) ...
-#7 6.021 Selecting previously unselected package libkadm5clnt-mit12:amd64.
-#7 6.023 Preparing to unpack .../26-libkadm5clnt-mit12_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 6.026 Unpacking libkadm5clnt-mit12:amd64 (1.22.1-2ubuntu4.1) ...
-#7 6.049 Selecting previously unselected package libkdb5-10t64:amd64.
-#7 6.050 Preparing to unpack .../27-libkdb5-10t64_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 6.053 Unpacking libkdb5-10t64:amd64 (1.22.1-2ubuntu4.1) ...
-#7 6.077 Selecting previously unselected package libkadm5srv-mit12:amd64.
-#7 6.078 Preparing to unpack .../28-libkadm5srv-mit12_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 6.081 Unpacking libkadm5srv-mit12:amd64 (1.22.1-2ubuntu4.1) ...
-#7 6.101 Selecting previously unselected package krb5-multidev:amd64.
-#7 6.102 Preparing to unpack .../29-krb5-multidev_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 6.106 Unpacking krb5-multidev:amd64 (1.22.1-2ubuntu4.1) ...
-#7 6.129 Selecting previously unselected package libbrotli-dev:amd64.
-#7 6.130 Preparing to unpack .../30-libbrotli-dev_1.2.0-3ubuntu0.1_amd64.deb ...
-#7 6.134 Unpacking libbrotli-dev:amd64 (1.2.0-3ubuntu0.1) ...
-#7 6.158 Selecting previously unselected package libidn2-dev:amd64.
-#7 6.159 Preparing to unpack .../31-libidn2-dev_2.3.8-4build1_amd64.deb ...
-#7 6.162 Unpacking libidn2-dev:amd64 (2.3.8-4build1) ...
-#7 6.184 Selecting previously unselected package libkrb5-dev:amd64.
-#7 6.185 Preparing to unpack .../32-libkrb5-dev_1.22.1-2ubuntu4.1_amd64.deb ...
-#7 6.189 Unpacking libkrb5-dev:amd64 (1.22.1-2ubuntu4.1) ...
-#7 6.212 Selecting previously unselected package libldap-dev:amd64.
-#7 6.214 Preparing to unpack .../33-libldap-dev_2.6.10+dfsg-1ubuntu5_amd64.deb ...
-#7 6.218 Unpacking libldap-dev:amd64 (2.6.10+dfsg-1ubuntu5) ...
-#7 6.250 Selecting previously unselected package libpkgconf7:amd64.
-#7 6.252 Preparing to unpack .../34-libpkgconf7_2.5.1-4_amd64.deb ...
-#7 6.256 Unpacking libpkgconf7:amd64 (2.5.1-4) ...
-#7 6.280 Selecting previously unselected package pkgconf-bin.
-#7 6.282 Preparing to unpack .../35-pkgconf-bin_2.5.1-4_amd64.deb ...
-#7 6.285 Unpacking pkgconf-bin (2.5.1-4) ...
-#7 6.311 Selecting previously unselected package pkgconf:amd64.
-#7 6.312 Preparing to unpack .../36-pkgconf_2.5.1-4_amd64.deb ...
-#7 6.317 Unpacking pkgconf:amd64 (2.5.1-4) ...
-#7 6.339 Selecting previously unselected package libnghttp2-dev:amd64.
-#7 6.340 Preparing to unpack .../37-libnghttp2-dev_1.68.0-2ubuntu0.2_amd64.deb ...
-#7 6.344 Unpacking libnghttp2-dev:amd64 (1.68.0-2ubuntu0.2) ...
-#7 6.367 Selecting previously unselected package libpsl-dev:amd64.
-#7 6.369 Preparing to unpack .../38-libpsl-dev_0.21.2-1.1build2_amd64.deb ...
-#7 6.373 Unpacking libpsl-dev:amd64 (0.21.2-1.1build2) ...
-#7 6.409 Selecting previously unselected package libgmpxx4ldbl:amd64.
-#7 6.411 Preparing to unpack .../39-libgmpxx4ldbl_2%3a6.3.0+dfsg-5ubuntu2_amd64.deb ...
-#7 6.416 Unpacking libgmpxx4ldbl:amd64 (2:6.3.0+dfsg-5ubuntu2) ...
-#7 6.440 Selecting previously unselected package libgmp-dev:amd64.
-#7 6.442 Preparing to unpack .../40-libgmp-dev_2%3a6.3.0+dfsg-5ubuntu2_amd64.deb ...
-#7 6.446 Unpacking libgmp-dev:amd64 (2:6.3.0+dfsg-5ubuntu2) ...
-#7 6.479 Selecting previously unselected package libevent-2.1-7t64:amd64.
-#7 6.481 Preparing to unpack .../41-libevent-2.1-7t64_2.1.12-stable-10ubuntu0.2_amd64.deb ...
-#7 6.485 Unpacking libevent-2.1-7t64:amd64 (2.1.12-stable-10ubuntu0.2) ...
-#7 6.515 Selecting previously unselected package libunbound8:amd64.
-#7 6.517 Preparing to unpack .../42-libunbound8_1.24.2-1ubuntu2.4_amd64.deb ...
-#7 6.520 Unpacking libunbound8:amd64 (1.24.2-1ubuntu2.4) ...
-#7 6.553 Selecting previously unselected package libgnutls-dane0t64:amd64.
-#7 6.554 Preparing to unpack .../43-libgnutls-dane0t64_3.8.12-2ubuntu1.1_amd64.deb ...
-#7 6.558 Unpacking libgnutls-dane0t64:amd64 (3.8.12-2ubuntu1.1) ...
-#7 6.586 Selecting previously unselected package libgnutls-openssl27t64:amd64.
-#7 6.588 Preparing to unpack .../44-libgnutls-openssl27t64_3.8.12-2ubuntu1.1_amd64.deb ...
-#7 6.592 Unpacking libgnutls-openssl27t64:amd64 (3.8.12-2ubuntu1.1) ...
-#7 6.617 Selecting previously unselected package libp11-kit-dev:amd64.
-#7 6.619 Preparing to unpack .../45-libp11-kit-dev_0.26.2-2_amd64.deb ...
-#7 6.624 Unpacking libp11-kit-dev:amd64 (0.26.2-2) ...
-#7 6.647 Selecting previously unselected package libtasn1-6-dev:amd64.
-#7 6.649 Preparing to unpack .../46-libtasn1-6-dev_4.21.0-2_amd64.deb ...
-#7 6.652 Unpacking libtasn1-6-dev:amd64 (4.21.0-2) ...
-#7 6.676 Selecting previously unselected package nettle-dev:amd64.
-#7 6.677 Preparing to unpack .../47-nettle-dev_3.10.2-1_amd64.deb ...
-#7 6.681 Unpacking nettle-dev:amd64 (3.10.2-1) ...
-#7 6.710 Selecting previously unselected package libgnutls28-dev:amd64.
-#7 6.712 Preparing to unpack .../48-libgnutls28-dev_3.8.12-2ubuntu1.1_amd64.deb ...
-#7 6.716 Unpacking libgnutls28-dev:amd64 (3.8.12-2ubuntu1.1) ...
-#7 6.754 Selecting previously unselected package zlib1g-dev:amd64.
-#7 6.755 Preparing to unpack .../49-zlib1g-dev_1%3a1.3.dfsg+really1.3.1-1ubuntu3.2_amd64.deb ...
-#7 6.760 Unpacking zlib1g-dev:amd64 (1:1.3.dfsg+really1.3.1-1ubuntu3.2) ...
-#7 6.787 Selecting previously unselected package librtmp-dev:amd64.
-#7 6.789 Preparing to unpack .../50-librtmp-dev_2.4+20151223.gitfa8646d.1-3_amd64.deb ...
-#7 6.793 Unpacking librtmp-dev:amd64 (2.4+20151223.gitfa8646d.1-3) ...
-#7 6.816 Selecting previously unselected package libssl-dev:amd64.
-#7 6.818 Preparing to unpack .../51-libssl-dev_3.5.5-1ubuntu3.7_amd64.deb ...
-#7 6.822 Unpacking libssl-dev:amd64 (3.5.5-1ubuntu3.7) ...
-#7 6.878 Selecting previously unselected package libssh2-1-dev:amd64.
-#7 6.880 Preparing to unpack .../52-libssh2-1-dev_1.11.1-1ubuntu0.26.04.4_amd64.deb ...
-#7 6.884 Unpacking libssh2-1-dev:amd64 (1.11.1-1ubuntu0.26.04.4) ...
-#7 6.911 Selecting previously unselected package libzstd-dev:amd64.
-#7 6.912 Preparing to unpack .../53-libzstd-dev_1.5.7+dfsg-3_amd64.deb ...
-#7 6.917 Unpacking libzstd-dev:amd64 (1.5.7+dfsg-3) ...
-#7 6.944 Selecting previously unselected package libcurl4-openssl-dev:amd64.
-#7 6.946 Preparing to unpack .../54-libcurl4-openssl-dev_8.18.0-1ubuntu2.8_amd64.deb ...
-#7 6.950 Unpacking libcurl4-openssl-dev:amd64 (8.18.0-1ubuntu2.8) ...
-#7 6.992 Setting up libexpat1:amd64 (2.7.4-1ubuntu0.2) ...
-#7 7.006 Setting up libgnutls-openssl27t64:amd64 (3.8.12-2ubuntu1.1) ...
-#7 7.017 Setting up libkeyutils1:amd64 (1.6.3-6ubuntu3) ...
-#7 7.036 Setting up libzstd-dev:amd64 (1.5.7+dfsg-3) ...
-#7 7.047 Setting up libxml2-16:amd64 (2.15.2+dfsg-0.1ubuntu0.3) ...
-#7 7.059 Setting up libbrotli1:amd64 (1.2.0-3ubuntu0.1) ...
-#7 7.070 Setting up libpkgconf7:amd64 (2.5.1-4) ...
-#7 7.081 Setting up libuv1t64:amd64 (1.51.0-2ubuntu1) ...
-#7 7.091 Setting up libpsl5t64:amd64 (0.21.2-1.1build2) ...
-#7 7.100 Setting up libnghttp2-14:amd64 (1.68.0-2ubuntu0.2) ...
-#7 7.108 Setting up libevent-2.1-7t64:amd64 (2.1.12-stable-10ubuntu0.2) ...
-#7 7.118 Setting up libpsl-dev:amd64 (0.21.2-1.1build2) ...
-#7 7.125 Setting up libkrb5support0:amd64 (1.22.1-2ubuntu4.1) ...
-#7 7.133 Setting up liberror-perl (0.17030-1) ...
-#7 7.141 Setting up ca-certificates (20260816ubuntu0.26.04.2) ...
-#7 7.185 debconf: unable to initialize frontend: Dialog
-#7 7.185 debconf: (TERM is not set, so the dialog frontend is not usable.)
-#7 7.185 debconf: falling back to frontend: Readline
-#7 7.191 debconf: unable to initialize frontend: Readline
-#7 7.191 debconf: (This frontend requires a controlling tty.)
-#7 7.191 debconf: falling back to frontend: Teletype
-#7 7.196 debconf: unable to initialize frontend: Teletype
-#7 7.196 debconf: (This frontend requires a controlling tty.)
-#7 7.196 debconf: falling back to frontend: Noninteractive
-#7 7.928 Updating certificates in /etc/ssl/certs...
-#7 8.343 0 added, 0 removed; done.
-#7 8.343 Running hooks in /etc/ca-certificates/update.d...
-#7 8.344 done.
-#7 8.365 Setting up libunbound8:amd64 (1.24.2-1ubuntu2.4) ...
-#7 8.373 Setting up libgmpxx4ldbl:amd64 (2:6.3.0+dfsg-5ubuntu2) ...
-#7 8.382 Setting up libgnutls-dane0t64:amd64 (3.8.12-2ubuntu1.1) ...
-#7 8.391 Setting up librtmp1:amd64 (2.4+20151223.gitfa8646d.1-3) ...
-#7 8.400 Setting up libjsoncpp26:amd64 (1.9.6-5) ...
-#7 8.409 Setting up libldap-dev:amd64 (2.6.10+dfsg-1ubuntu5) ...
-#7 8.419 Setting up comerr-dev:amd64 (2.1-1.47.2-3ubuntu4) ...
-#7 8.428 Setting up libssl-dev:amd64 (3.5.5-1ubuntu3.7) ...
-#7 8.436 Setting up pkgconf-bin (2.5.1-4) ...
-#7 8.445 Setting up libk5crypto3:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.453 Setting up libidn2-dev:amd64 (2.3.8-4build1) ...
-#7 8.462 Setting up zlib1g-dev:amd64 (1:1.3.dfsg+really1.3.1-1ubuntu3.2) ...
-#7 8.471 Setting up git-man (1:2.53.0-1ubuntu1.1) ...
-#7 8.479 Setting up cmake-data (4.2.3-2ubuntu2) ...
-#7 8.491 Setting up librhash1:amd64 (1.4.6-1.1) ...
-#7 8.500 Setting up libkrb5-3:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.508 Setting up libssh2-1t64:amd64 (1.11.1-1ubuntu0.26.04.4) ...
-#7 8.516 Setting up libtasn1-6-dev:amd64 (4.21.0-2) ...
-#7 8.524 Setting up libarchive13t64:amd64 (3.8.5-1ubuntu2.3) ...
-#7 8.531 Setting up libbrotli-dev:amd64 (1.2.0-3ubuntu0.1) ...
-#7 8.539 Setting up libp11-kit-dev:amd64 (0.26.2-2) ...
-#7 8.546 Setting up libgmp-dev:amd64 (2:6.3.0+dfsg-5ubuntu2) ...
-#7 8.553 Setting up nettle-dev:amd64 (3.10.2-1) ...
-#7 8.561 Setting up pkgconf:amd64 (2.5.1-4) ...
-#7 8.569 Setting up libgssapi-krb5-2:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.576 Setting up libssh2-1-dev:amd64 (1.11.1-1ubuntu0.26.04.4) ...
-#7 8.584 Setting up libgnutls28-dev:amd64 (3.8.12-2ubuntu1.1) ...
-#7 8.591 Setting up libnghttp2-dev:amd64 (1.68.0-2ubuntu0.2) ...
-#7 8.598 Setting up libcurl4t64:amd64 (8.18.0-1ubuntu2.8) ...
-#7 8.606 Setting up libcurl3t64-gnutls:amd64 (8.18.0-1ubuntu2.8) ...
-#7 8.614 Setting up libgssrpc4t64:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.621 Setting up librtmp-dev:amd64 (2.4+20151223.gitfa8646d.1-3) ...
-#7 8.629 Setting up git (1:2.53.0-1ubuntu1.1) ...
-#7 8.643 Setting up cmake (4.2.3-2ubuntu2) ...
-#7 8.651 Setting up libkadm5clnt-mit12:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.659 Setting up libkdb5-10t64:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.671 Setting up libkadm5srv-mit12:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.682 Setting up krb5-multidev:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.694 Setting up libkrb5-dev:amd64 (1.22.1-2ubuntu4.1) ...
-#7 8.705 Setting up libcurl4-openssl-dev:amd64 (8.18.0-1ubuntu2.8) ...
-#7 8.718 Processing triggers for libc-bin (2.43-2ubuntu2.4) ...
-#7 DONE 11.9s
-
-#8 [build 3/6] RUN test -n "https://github.com/xyznq1/xyz-llama" && test -n "f095f4dd559cdb742c9b3ed71b7131855179f935"  && git clone "https://github.com/xyznq1/xyz-llama" /src && git -C /src checkout "f095f4dd559cdb742c9b3ed71b7131855179f935"
-#8 0.123 Cloning into '/src'...
-#8 15.70 Note: switching to 'f095f4dd559cdb742c9b3ed71b7131855179f935'.
-#8 15.70 
-#8 15.70 You are in 'detached HEAD' state. You can look around, make experimental
-#8 15.70 changes and commit them, and you can discard any commits you make in this
-#8 15.70 state without impacting any branches by switching back to a branch.
-#8 15.70 
-#8 15.70 If you want to create a new branch to retain commits you create, you may
-#8 15.70 do so (now or later) by using -c with the switch command. Example:
-#8 15.70 
-#8 15.70   git switch -c <new-branch-name>
-#8 15.70 
-#8 15.70 Or undo this operation with:
-#8 15.70 
-#8 15.70   git switch -
-#8 15.70 
-#8 15.70 Turn off this advice by setting config variable advice.detachedHead to false
-#8 15.70 
-#8 15.70 HEAD is now at f095f4dd5 docs: v1.3 reads a 161k prompt at 929 tokens/s, 984 with the engine
-#8 DONE 16.0s
+#8 [build 2/6] RUN apt-get update && apt-get install -y --no-install-recommends     git cmake build-essential ca-certificates libssl-dev libcurl4-openssl-dev  && rm -rf /var/lib/apt/lists/*
+#8 CACHED
 
 #9 [build 4/6] WORKDIR /src
-#9 DONE 0.1s
+#9 CACHED
 
 #10 [build 5/6] RUN cmake -B build -DGGML_CUDA=ON -DGGML_NATIVE=OFF -DCMAKE_BUILD_TYPE=Release       -DCMAKE_CUDA_ARCHITECTURES="86;89;120" -DLLAMA_BUILD_BORINGSSL=ON  && cmake --build build --config Release -j8 --target llama-server
-#10 0.165 -- The C compiler identification is GNU 15.2.0
-#10 0.199 -- The CXX compiler identification is GNU 15.2.0
-#10 0.203 -- Detecting C compiler ABI info
-#10 0.246 -- Detecting C compiler ABI info - done
-#10 0.253 -- Check for working C compiler: /usr/bin/cc - skipped
-#10 0.253 -- Detecting C compile features
-#10 0.254 -- Detecting C compile features - done
-#10 0.259 -- Detecting CXX compiler ABI info
-#10 0.308 -- Detecting CXX compiler ABI info - done
+#10 0.141 -- The C compiler identification is GNU 15.2.0
+#10 0.181 -- The CXX compiler identification is GNU 15.2.0
+#10 0.186 -- Detecting C compiler ABI info
+#10 0.235 -- Detecting C compiler ABI info - done
+#10 0.243 -- Check for working C compiler: /usr/bin/cc - skipped
+#10 0.243 -- Detecting C compile features
+#10 0.243 -- Detecting C compile features - done
+#10 0.251 -- Detecting CXX compiler ABI info
+#10 0.307 -- Detecting CXX compiler ABI info - done
 #10 0.315 -- Check for working CXX compiler: /usr/bin/c++ - skipped
-#10 0.315 -- Detecting CXX compile features
-#10 0.315 -- Detecting CXX compile features - done
-#10 0.319 CMAKE_BUILD_TYPE=Release
-#10 0.319 -- llama.cpp version: 1.3.0
-#10 0.321 -- Found Git: /usr/bin/git (found version "2.53.0")
-#10 0.401 -- The ASM compiler identification is GNU
-#10 0.402 -- Found assembler: /usr/bin/cc
-#10 0.453 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
-#10 0.503 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
-#10 0.503 -- Found Threads: TRUE
-#10 0.507 -- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
-#10 0.517 -- CMAKE_SYSTEM_PROCESSOR: x86_64
-#10 0.517 -- GGML_SYSTEM_ARCH: x86
-#10 0.668 -- Found OpenMP_C: -fopenmp (found version "4.5")
-#10 0.718 -- Found OpenMP_CXX: -fopenmp (found version "4.5")
-#10 0.718 -- Found OpenMP: TRUE (found version "4.5")
-#10 0.719 -- Including CPU backend
-#10 0.719 -- x86 detected
-#10 0.719 -- Adding CPU backend variant ggml-cpu: -msse4.2;-mf16c;-mfma;-mbmi2;-mavx;-mavx2 GGML_SSE42;GGML_F16C;GGML_FMA;GGML_BMI2;GGML_AVX;GGML_AVX2
-#10 0.732 -- Found CUDAToolkit: /usr/local/cuda/targets/x86_64-linux/include;/usr/local/cuda/targets/x86_64-linux/include/cccl (found version "13.5.37")
-#10 0.758 -- CUDA Toolkit found
-#10 1.232 -- The CUDA compiler identification is NVIDIA 13.5.37 with host compiler GNU 15.2.0
-#10 1.237 -- Detecting CUDA compiler ABI info
-#10 2.043 -- Detecting CUDA compiler ABI info - done
-#10 2.069 -- Check for working CUDA compiler: /usr/local/cuda/bin/nvcc - skipped
-#10 2.071 -- Detecting CUDA compile features
-#10 2.071 -- Detecting CUDA compile features - done
-#10 2.075 -- Replacing 120 in CMAKE_CUDA_ARCHITECTURES with 120a
-#10 2.075 -- Using CMAKE_CUDA_ARCHITECTURES=86;89;120a CMAKE_CUDA_ARCHITECTURES_NATIVE=No CUDA devices found.-real
-#10 2.078 -- Found NCCL: /usr/lib/x86_64-linux-gnu/libnccl.so
-#10 2.098 -- CUDA host compiler is GNU 15.2.0
-#10 2.098 -- Including CUDA backend
-#10 2.101 -- ggml version: 0.22.0
-#10 2.101 -- ggml commit:  f095f4dd5
-#10 2.104 -- Fetching BoringSSL version 0.20260813.0
-#10 14.41 -- Generating embedded license file for target: llama-app
-#10 14.42 -- Configuring done (14.3s)
-#10 14.59 -- Generating done (0.2s)
-#10 14.59 -- Build files have been written to: /src/build
-#10 14.64 [  0%] Building CXX object common/CMakeFiles/llama-common-base.dir/build-info.cpp.o
-#10 14.64 [  0%] Building CXX object vendor/hash/CMakeFiles/vendor-hash.dir/hash.cpp.o
-#10 14.64 [  0%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml.cpp.o
-#10 14.64 [  0%] Building CXX object tools/ui/CMakeFiles/llama-ui-embed.dir/embed.cpp.o
-#10 14.64 [  0%] Building C object vendor/hash/CMakeFiles/vendor-hash.dir/xxhash/xxhash.c.o
-#10 14.64 [  0%] Building CXX object vendor/hash/CMakeFiles/vendor-hash.dir/sha1/sha1.c.o
-#10 14.64 [  0%] Building CXX object _deps/boringssl-build/CMakeFiles/fipsmodule.dir/crypto/fipsmodule/bcm.cc.o
-#10 14.64 [  1%] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml.c.o
-#10 14.69 /src/ggml/src/ggml.c: In function 'ggml_gated_delta_net':
-#10 14.69 /src/ggml/src/ggml.c:6416:19: warning: unused variable 'n_tokens' [-Wunused-variable]
-#10 14.69  6416 |     const int64_t n_tokens = v->ne[2];
-#10 14.69       |                   ^~~~~~~~
-#10 14.76 [  1%] Building C object vendor/hash/CMakeFiles/vendor-hash.dir/sha256/sha256.c.o
-#10 14.80 [  1%] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-alloc.c.o
-#10 14.82 [  1%] Linking CXX static library libllama-common-base.a
-#10 14.84 [  1%] Built target llama-common-base
-#10 14.85 [  1%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-backend.cpp.o
-#10 14.85 [  1%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-backend-meta.cpp.o
-#10 14.88 [  1%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-opt.cpp.o
-#10 15.20 [  1%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-threading.cpp.o
-#10 15.26 [  1%] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-quants.c.o
-#10 15.50 [  2%] Linking CXX static library libvendor-hash.a
-#10 15.52 [  2%] Built target vendor-hash
-#10 15.53 [  2%] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-xyzkv-quant.c.o
-#10 15.56 /src/ggml/src/ggml-xyzkv-quant.c:12:14: warning: 'xyzkv_cpu_wht_group_size' initialized and declared 'extern'
-#10 15.56    12 | GGML_API int xyzkv_cpu_wht_group_size = 0;
-#10 15.56       |              ^~~~~~~~~~~~~~~~~~~~~~~~
-#10 15.56 [  2%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/gguf.cpp.o
-#10 15.66 [  2%] Linking CXX executable llama-ui-embed
-#10 15.71 [  2%] Built target llama-ui-embed
-#10 15.72 [  2%] Provisioning UI assets
-#10 15.73 -- UI: downloading from b10805: https://huggingface.co/buckets/ggml-org/llama-ui/resolve/b10805/dist.tar.gz
-#10 15.93 -- UI: download dist.tar.gz from b10805 failed: "HTTP response code said error"
-#10 15.93 -- UI: downloading from latest: https://huggingface.co/buckets/ggml-org/llama-ui/resolve/latest/dist.tar.gz
-#10 16.88 -- UI: archive verified and extracted
-#10 16.88 -- UI: HF download succeeded, stamp updated (latest)
-#10 17.43 -- UI: gzip compression applied (/src/build/tools/ui/dist/_gzip)
-#10 17.43 
-#10 17.43 current asset files:
-#10 17.43     _app/immutable/assets/0.NgFRQ5lY.css
-#10 17.43     _app/immutable/assets/LlamaMono.7z2dnkpH.woff2
-#10 17.43     _app/immutable/assets/LlamaSans.C2rXtH67.woff2
-#10 17.43     _app/immutable/assets/app.BkGJAZ7D.css
-#10 17.43     _app/immutable/assets/nerdamer.Cl-GVG6T.js
-#10 17.43     _app/immutable/assets/pdf.worker.min.DbR_HJhJ.mjs
-#10 17.43     _app/immutable/chunks/1CIrbR2Q.js
-#10 17.43     _app/immutable/chunks/1l-8ymtB.js
-#10 17.43     _app/immutable/chunks/26Y1-4rB.js
-#10 17.43     _app/immutable/chunks/3SQ5KT5a.js
-#10 17.43     _app/immutable/chunks/3ymKbqSp.js
-#10 17.43     _app/immutable/chunks/531-IPPG.js
-#10 17.43     _app/immutable/chunks/5I1j5qRd.js
-#10 17.43     _app/immutable/chunks/5k5YNuRS.js
-#10 17.43     _app/immutable/chunks/73P-F8U9.js
-#10 17.43     _app/immutable/chunks/73lFXAp6.js
-#10 17.43     _app/immutable/chunks/8u8Pml-P.js
-#10 17.43     _app/immutable/chunks/B-P1Uyq8.js
-#10 17.43     _app/immutable/chunks/B-PCS5zA.js
-#10 17.43     _app/immutable/chunks/B1CroMsf.js
-#10 17.43     _app/immutable/chunks/B1F_0bnw.js
-#10 17.43     _app/immutable/chunks/B1pH5dXO.js
-#10 17.43     _app/immutable/chunks/B3koHNzP.js
-#10 17.43     _app/immutable/chunks/B4bepPhE.js
-#10 17.43     _app/immutable/chunks/B7MIMCXP.js
-#10 17.43     _app/immutable/chunks/BCEr2jAI.js
-#10 17.43     _app/immutable/chunks/BCRbq8jp.js
-#10 17.43     _app/immutable/chunks/BD9AMQkN.js
-#10 17.43     _app/immutable/chunks/BECLvyNb.js
-#10 17.43     _app/immutable/chunks/BGBfXPIx.js
-#10 17.43     _app/immutable/chunks/BGRQnnF2.js
-#10 17.43     _app/immutable/chunks/BGfA2oQG.js
-#10 17.43     _app/immutable/chunks/BHHhacaR.js
-#10 17.43     _app/immutable/chunks/BI2r-hyN.js
-#10 17.43     _app/immutable/chunks/BJ2OcN8V.js
-#10 17.43     _app/immutable/chunks/BLbzjUaV.js
-#10 17.43     _app/immutable/chunks/BMhS-uq9.js
-#10 17.43     _app/immutable/chunks/BNjRHcgO.js
-#10 17.43     _app/immutable/chunks/BOkolQqs.js
-#10 17.43     _app/immutable/chunks/BQvSqJrQ.js
-#10 17.43     _app/immutable/chunks/BSf_7YOu.js
-#10 17.43     _app/immutable/chunks/BUe16zE4.js
-#10 17.43     _app/immutable/chunks/BW462adD.js
-#10 17.43     _app/immutable/chunks/BWVYCPTK.js
-#10 17.43     _app/immutable/chunks/BWaJ3C7D.js
-#10 17.43     _app/immutable/chunks/BX-o3EIz.js
-#10 17.43     _app/immutable/chunks/BXgVOBG5.js
-#10 17.43     _app/immutable/chunks/BaXwJpWq.js
-#10 17.43     _app/immutable/chunks/BahAjTwm.js
-#10 17.43     _app/immutable/chunks/BakFZ2ml.js
-#10 17.43     _app/immutable/chunks/BcBB30ub.js
-#10 17.43     _app/immutable/chunks/BiMsFFN_.js
-#10 17.43     _app/immutable/chunks/BjYI8dhz.js
-#10 17.43     _app/immutable/chunks/Bjg1FiVd.js
-#10 17.43     _app/immutable/chunks/Bjy-W4x2.js
-#10 17.43     _app/immutable/chunks/BkW-mzl-.js
-#10 17.43     _app/immutable/chunks/BmerogBf.js
-#10 17.43     _app/immutable/chunks/Boj4HSji.js
-#10 17.43     _app/immutable/chunks/BpsPHbGc.js
-#10 17.43     _app/immutable/chunks/Bqj0DVIt.js
-#10 17.43     _app/immutable/chunks/BqpFWvKu.js
-#10 17.43     _app/immutable/chunks/BsbfJrTt.js
-#10 17.43     _app/immutable/chunks/BzWcX1gm.js
-#10 17.43     _app/immutable/chunks/C0zufGsU.js
-#10 17.43     _app/immutable/chunks/C3EegiWg.js
-#10 17.43     _app/immutable/chunks/C4-LAR4Q.js
-#10 17.43     _app/immutable/chunks/C5TQXDMb.js
-#10 17.43     _app/immutable/chunks/C7-SNsey.js
-#10 17.43     _app/immutable/chunks/C8bVcNXx.js
-#10 17.43     _app/immutable/chunks/C9Z__FYS.js
-#10 17.43     _app/immutable/chunks/C9lP4FWY.js
-#10 17.43     _app/immutable/chunks/CA93Z2eM.js
-#10 17.43     _app/immutable/chunks/CBFuTPWj.js
-#10 17.43     _app/immutable/chunks/CDc1Vb3D.js
-#10 17.43     _app/immutable/chunks/CEFdYGQ4.js
-#10 17.43     _app/immutable/chunks/CElFSg8P.js
-#10 17.43     _app/immutable/chunks/CGIj3Ot5.js
-#10 17.43     _app/immutable/chunks/CHTJ6C4a.js
-#10 17.43     _app/immutable/chunks/CJ1TLoQF.js
-#10 17.43     _app/immutable/chunks/CJH3ep_3.js
-#10 17.43     _app/immutable/chunks/CJb8JxGC.js
-#10 17.43     _app/immutable/chunks/CP1rWjpH.js
-#10 17.43     _app/immutable/chunks/CPLFVNxS.js
-#10 17.43     _app/immutable/chunks/CR1Ogma7.js
-#10 17.43     _app/immutable/chunks/CR3yefiA.js
-#10 17.43     _app/immutable/chunks/CR7dvLJ4.js
-#10 17.43     _app/immutable/chunks/CR9tZ93c.js
-#10 17.43     _app/immutable/chunks/CRcZGluc.js
-#10 17.43     _app/immutable/chunks/CSRnPoYO.js
-#10 17.43     _app/immutable/chunks/CSrFSEx0.js
-#10 17.43     _app/immutable/chunks/CVYb4e6m.js
-#10 17.43     _app/immutable/chunks/CWGByNpv.js
-#10 17.43     _app/immutable/chunks/CXP1cmYR.js
-#10 17.43     _app/immutable/chunks/CXnZM-Nf.js
-#10 17.43     _app/immutable/chunks/C_5_0OWv.js
-#10 17.43     _app/immutable/chunks/C_EjVcnO.js
-#10 17.43     _app/immutable/chunks/C_UcIgej.js
-#10 17.43     _app/immutable/chunks/C_mGJ3Jy.js
-#10 17.43     _app/immutable/chunks/CaM3tfvi.js
-#10 17.43     _app/immutable/chunks/CaU6e6N4.js
-#10 17.43     _app/immutable/chunks/Cb2OgvrR.js
-#10 17.43     _app/immutable/chunks/CcGrHbps.js
-#10 17.43     _app/immutable/chunks/Cgnqi5KA.js
-#10 17.43     _app/immutable/chunks/CiO3JXx7.js
-#10 17.43     _app/immutable/chunks/CjhsRFLe.js
-#10 17.43     _app/immutable/chunks/CkSV9Luo.js
-#10 17.43     _app/immutable/chunks/ClNaFHRt.js
-#10 17.43     _app/immutable/chunks/CpIe18ku.js
-#10 17.43     _app/immutable/chunks/CpMp0mBm.js
-#10 17.43     _app/immutable/chunks/CpiLaDrO.js
-#10 17.43     _app/immutable/chunks/Cu9sx8W2.js
-#10 17.43     _app/immutable/chunks/CvqMZYuf.js
-#10 17.43     _app/immutable/chunks/CxTKDHeA.js
-#10 17.43     _app/immutable/chunks/D-4KA1m9.js
-#10 17.43     _app/immutable/chunks/D3oKByup.js
-#10 17.43     _app/immutable/chunks/D463B8d-.js
-#10 17.43     _app/immutable/chunks/D5l_8KUR.js
-#10 17.43     _app/immutable/chunks/D5uGO-jm.js
-#10 17.43     _app/immutable/chunks/D6zc0cUO.js
-#10 17.43     _app/immutable/chunks/D8SR3GGH.js
-#10 17.43     _app/immutable/chunks/DC-R59BF.js
-#10 17.43     _app/immutable/chunks/DEWZKVv3.js
-#10 17.43     _app/immutable/chunks/DEdPwm2c.js
-#10 17.43     _app/immutable/chunks/DGOW1qT8.js
-#10 17.43     _app/immutable/chunks/DGokiC3s.js
-#10 17.43     _app/immutable/chunks/DGs-X5Vp.js
-#10 17.43     _app/immutable/chunks/DJFrA4nv.js
-#10 17.43     _app/immutable/chunks/DJqXWVRL.js
-#10 17.43     _app/immutable/chunks/DLXDdhyK.js
-#10 17.43     _app/immutable/chunks/DM8HP7qn.js
-#10 17.43     _app/immutable/chunks/DMzbk8qN.js
-#10 17.43     _app/immutable/chunks/DNWPCnjT.js
-#10 17.43     _app/immutable/chunks/DO8eeo3I.js
-#10 17.43     _app/immutable/chunks/DOTrSD3H.js
-#10 17.43     _app/immutable/chunks/DQKGwi3G.js
-#10 17.43     _app/immutable/chunks/DRbqW1u4.js
-#10 17.43     _app/immutable/chunks/DS4EA3dC.js
-#10 17.43     _app/immutable/chunks/DSQwiuj1.js
-#10 17.43     _app/immutable/chunks/DTzUSEH8.js
-#10 17.43     _app/immutable/chunks/DV7smCjo.js
-#10 17.43     _app/immutable/chunks/DVi5cKOT.js
-#10 17.43     _app/immutable/chunks/DWRKyvJ-.js
-#10 17.43     _app/immutable/chunks/DZJEcL8n.js
-#10 17.43     _app/immutable/chunks/D_ESCULk.js
-#10 17.43     _app/immutable/chunks/Da8STgqx.js
-#10 17.43     _app/immutable/chunks/DasnpDVC.js
-#10 17.43     _app/immutable/chunks/DclECHGd.js
-#10 17.43     _app/immutable/chunks/DdjbPXam.js
-#10 17.43     _app/immutable/chunks/DeCngaqu.js
-#10 17.43     _app/immutable/chunks/Dg6dmf5K.js
-#10 17.43     _app/immutable/chunks/Dh71fdD_.js
-#10 17.43     _app/immutable/chunks/Dh9PJFmJ.js
-#10 17.43     _app/immutable/chunks/Dhhcn_CA.js
-#10 17.43     _app/immutable/chunks/DjOhhVLG.js
-#10 17.43     _app/immutable/chunks/DkTKhn5C.js
-#10 17.43     _app/immutable/chunks/DoVWcw3Q.js
-#10 17.43     _app/immutable/chunks/DptdJbGO.js
-#10 17.43     _app/immutable/chunks/DqHi-6vF.js
-#10 17.43     _app/immutable/chunks/Dr9rmg8t.js
-#10 17.43     _app/immutable/chunks/Dv0yWYFF.js
-#10 17.43     _app/immutable/chunks/DvbP7u24.js
-#10 17.43     _app/immutable/chunks/DwUuKi_Q.js
-#10 17.43     _app/immutable/chunks/DwhXSSGr.js
-#10 17.43     _app/immutable/chunks/Dxj7e8BX.js
-#10 17.43     _app/immutable/chunks/F90s6HK_.js
-#10 17.43     _app/immutable/chunks/FGVCSpsQ.js
-#10 17.43     _app/immutable/chunks/GZmu99Fo.js
-#10 17.43     _app/immutable/chunks/Hak9sRVf.js
-#10 17.43     _app/immutable/chunks/Hj_vmM07.js
-#10 17.43     _app/immutable/chunks/JVA7wRWo.js
-#10 17.43     _app/immutable/chunks/KNgW1fZo.js
-#10 17.43     _app/immutable/chunks/Ke-GOEW9.js
-#10 17.43     _app/immutable/chunks/LZCIum1w.js
-#10 17.43     _app/immutable/chunks/NqH9ctA4.js
-#10 17.43     _app/immutable/chunks/PigSugnL.js
-#10 17.43     _app/immutable/chunks/QAx8GmV3.js
-#10 17.43     _app/immutable/chunks/Qa3iLJWP.js
-#10 17.43     _app/immutable/chunks/V0F2hNk9.js
-#10 17.43     _app/immutable/chunks/Vgr6fxPS.js
-#10 17.43     _app/immutable/chunks/Wu2ux-Fn.js
-#10 17.43     _app/immutable/chunks/YB8mb-y7.js
-#10 17.43     _app/immutable/chunks/YlWmQdSJ.js
-#10 17.43     _app/immutable/chunks/YlzcZYWN.js
-#10 17.43     _app/immutable/chunks/ZpNubZZ_.js
-#10 17.43     _app/immutable/chunks/aGu1RaYf.js
-#10 17.43     _app/immutable/chunks/aHBM9jLK.js
-#10 17.43     _app/immutable/chunks/aZNm1DXx.js
-#10 17.43     _app/immutable/chunks/bShcHfOZ.js
-#10 17.43     _app/immutable/chunks/cD8rF-Vw.js
-#10 17.43     _app/immutable/chunks/dTiwAriW.js
-#10 17.43     _app/immutable/chunks/hBR4I1od.js
-#10 17.43     _app/immutable/chunks/hKzGh-52.js
-#10 17.43     _app/immutable/chunks/iLCLl-5n.js
-#10 17.43     _app/immutable/chunks/ifxXhTOO.js
-#10 17.43     _app/immutable/chunks/jK6vAkqq.js
-#10 17.43     _app/immutable/chunks/lM-YLvZH.js
-#10 17.43     _app/immutable/chunks/nSe0mzJm.js
-#10 17.43     _app/immutable/chunks/oUUdvLrs.js
-#10 17.43     _app/immutable/chunks/p0dfWXuO.js
-#10 17.43     _app/immutable/chunks/p0pDTEuW.js
-#10 17.43     _app/immutable/chunks/p7Fa3A78.js
-#10 17.43     _app/immutable/chunks/qGz9CBa_.js
-#10 17.43     _app/immutable/chunks/rqf_V7Lc.js
-#10 17.43     _app/immutable/chunks/tFw2_zZo.js
-#10 17.43     _app/immutable/chunks/tYyfRjr6.js
-#10 17.43     _app/immutable/chunks/tnVFwE0j.js
-#10 17.43     _app/immutable/chunks/tuAJdZsI.js
-#10 17.43     _app/immutable/chunks/upDuL0ca.js
-#10 17.43     _app/immutable/chunks/wv2tBZQi.js
-#10 17.43     _app/immutable/chunks/xylFSQAW.js
-#10 17.43     _app/immutable/chunks/zdpkyKaR.js
-#10 17.43     _app/immutable/entry/app.DsxjKOsH.js
-#10 17.43     _app/immutable/entry/payload.DSmR2FwN.js
-#10 17.43     _app/immutable/entry/start.R0Xo1HAL.js
-#10 17.43     _app/immutable/nodes/0.CD5ZB7bk.js
-#10 17.43     _app/immutable/nodes/1.li_mYy-u.js
-#10 17.43     _app/immutable/nodes/2.DX4ySzdi.js
-#10 17.43     _app/immutable/nodes/3.DkOR0T40.js
-#10 17.43     _app/immutable/nodes/4.DskxgQhH.js
-#10 17.43     _app/immutable/nodes/5.BsGvtEje.js
-#10 17.43     _app/immutable/nodes/6.CqOrIHPd.js
-#10 17.43     _app/immutable/nodes/7.BplF_co3.js
-#10 17.43     _app/immutable/nodes/8.DDSnD1Td.js
-#10 17.43     _app/version.json
-#10 17.43     apple-splash-landscape-1136x640.png
-#10 17.43     apple-splash-landscape-1334x750.png
-#10 17.43     apple-splash-landscape-2266x1488.png
-#10 17.43     apple-splash-landscape-2360x1640.png
-#10 17.43     apple-splash-landscape-2388x1668.png
-#10 17.43     apple-splash-landscape-2532x1170.png
-#10 17.43     apple-splash-landscape-2556x1179.png
-#10 17.43     apple-splash-landscape-2622x1206.png
-#10 17.43     apple-splash-landscape-2732x2048.png
-#10 17.43     apple-splash-landscape-2778x1284.png
-#10 17.43     apple-splash-landscape-2796x1290.png
-#10 17.43     apple-splash-landscape-2868x1320.png
-#10 17.43     apple-splash-landscape-dark-1136x640.png
-#10 17.43     apple-splash-landscape-dark-1334x750.png
-#10 17.43     apple-splash-landscape-dark-2266x1488.png
-#10 17.43     apple-splash-landscape-dark-2360x1640.png
-#10 17.43     apple-splash-landscape-dark-2388x1668.png
-#10 17.43     apple-splash-landscape-dark-2532x1170.png
-#10 17.43     apple-splash-landscape-dark-2556x1179.png
-#10 17.43     apple-splash-landscape-dark-2622x1206.png
-#10 17.43     apple-splash-landscape-dark-2732x2048.png
-#10 17.43     apple-splash-landscape-dark-2778x1284.png
-#10 17.43     apple-splash-landscape-dark-2796x1290.png
-#10 17.43     apple-splash-landscape-dark-2868x1320.png
-#10 17.43     apple-splash-portrait-1170x2532.png
-#10 17.43     apple-splash-portrait-1179x2556.png
-#10 17.43     apple-splash-portrait-1206x2622.png
-#10 17.43     apple-splash-portrait-1284x2778.png
-#10 17.43     apple-splash-portrait-1290x2796.png
-#10 17.43     apple-splash-portrait-1320x2868.png
-#10 17.43     apple-splash-portrait-1488x2266.png
-#10 17.43     apple-splash-portrait-1640x2360.png
-#10 17.43     apple-splash-portrait-1668x2388.png
-#10 17.43     apple-splash-portrait-2048x2732.png
-#10 17.43     apple-splash-portrait-640x1136.png
-#10 17.43     apple-splash-portrait-750x1334.png
-#10 17.43     apple-splash-portrait-dark-1170x2532.png
-#10 17.43     apple-splash-portrait-dark-1179x2556.png
-#10 17.43     apple-splash-portrait-dark-1206x2622.png
-#10 17.43     apple-splash-portrait-dark-1284x2778.png
-#10 17.43     apple-splash-portrait-dark-1290x2796.png
-#10 17.43     apple-splash-portrait-dark-1320x2868.png
-#10 17.43     apple-splash-portrait-dark-1488x2266.png
-#10 17.43     apple-splash-portrait-dark-1640x2360.png
-#10 17.43     apple-splash-portrait-dark-1668x2388.png
-#10 17.43     apple-splash-portrait-dark-2048x2732.png
-#10 17.43     apple-splash-portrait-dark-640x1136.png
-#10 17.43     apple-splash-portrait-dark-750x1334.png
-#10 17.43     apple-touch-icon-180x180.png
-#10 17.43     build.json
-#10 17.43     favicon-dark.ico
-#10 17.43     favicon-dark.svg
-#10 17.43     favicon.ico
-#10 17.43     favicon.svg
-#10 17.43     index.html
-#10 17.43     manifest.webmanifest
-#10 17.43     maskable-icon-512x512.png
-#10 17.43     pwa-192x192.png
-#10 17.43     pwa-512x512.png
-#10 17.43     pwa-64x64.png
-#10 17.43     recommended-mcp/context7.png
-#10 17.43     recommended-mcp/exa.ico
-#10 17.43     recommended-mcp/github-dark.png
-#10 17.43     recommended-mcp/github-light.png
-#10 17.43     recommended-mcp/huggingface.ico
-#10 17.43     service-worker.js
-#10 17.43     sw.js
-#10 17.43 missing required asset(s):
-#10 17.43     bundle[hash].js
-#10 17.43     bundle[hash].css
-#10 17.43     workbox[hash].js
-#10 17.43 hint: try cleaning your build directory: /src/build/tools/ui/dist/_gzip
-#10 17.43 CMake Error at /src/scripts/ui-assets.cmake:291 (message):
-#10 17.43   UI: llama-ui-embed failed (1)
-#10 17.43 Call Stack (most recent call first):
-#10 17.43   /src/scripts/ui-assets.cmake:367 (emit_files)
-#10 17.43 
-#10 17.43 
-#10 17.43 gmake[3]: *** [tools/ui/CMakeFiles/llama-ui-assets.dir/build.make:71: tools/ui/CMakeFiles/llama-ui-assets] Error 1
-#10 17.43 gmake[2]: *** [CMakeFiles/Makefile2:6338: tools/ui/CMakeFiles/llama-ui-assets.dir/all] Error 2
-#10 17.43 gmake[2]: *** Waiting for unfinished jobs....
-#10 20.11 [  4%] Linking CXX shared library ../../bin/libggml-base.so
-#10 20.17 [  4%] Built target ggml-base
-#10 27.86 [  4%] Built target fipsmodule
-#10 27.86 gmake[1]: *** [CMakeFiles/Makefile2:6596: tools/server/CMakeFiles/llama-server.dir/rule] Error 2
-#10 27.86 gmake: *** [Makefile:1947: llama-server] Error 2
+#10 0.316 -- Detecting CXX compile features
+#10 0.316 -- Detecting CXX compile features - done
+#10 0.321 -- llama.cpp version: 1.3.0
+#10 0.321 CMAKE_BUILD_TYPE=Release
+#10 0.323 -- Found Git: /usr/bin/git (found version "2.53.0")
+#10 0.414 -- The ASM compiler identification is GNU
+#10 0.415 -- Found assembler: /usr/bin/cc
+#10 0.465 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+#10 0.515 -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+#10 0.516 -- Found Threads: TRUE
+#10 0.519 -- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
+#10 0.529 -- CMAKE_SYSTEM_PROCESSOR: x86_64
+#10 0.529 -- GGML_SYSTEM_ARCH: x86
+#10 0.684 -- Found OpenMP_C: -fopenmp (found version "4.5")
+#10 0.739 -- Found OpenMP_CXX: -fopenmp (found version "4.5")
+#10 0.739 -- Found OpenMP: TRUE (found version "4.5")
+#10 0.740 -- Including CPU backend
+#10 0.740 -- x86 detected
+#10 0.740 -- Adding CPU backend variant ggml-cpu: -msse4.2;-mf16c;-mfma;-mbmi2;-mavx;-mavx2 GGML_SSE42;GGML_F16C;GGML_FMA;GGML_BMI2;GGML_AVX;GGML_AVX2
+#10 0.753 -- Found CUDAToolkit: /usr/local/cuda/targets/x86_64-linux/include;/usr/local/cuda/targets/x86_64-linux/include/cccl (found version "13.5.37")
+#10 0.780 -- CUDA Toolkit found
+#10 1.274 -- The CUDA compiler identification is NVIDIA 13.5.37 with host compiler GNU 15.2.0
+#10 1.279 -- Detecting CUDA compiler ABI info
+#10 2.092 -- Detecting CUDA compiler ABI info - done
+#10 2.118 -- Check for working CUDA compiler: /usr/local/cuda/bin/nvcc - skipped
+#10 2.120 -- Detecting CUDA compile features
+#10 2.120 -- Detecting CUDA compile features - done
+#10 2.125 -- Replacing 120 in CMAKE_CUDA_ARCHITECTURES with 120a
+#10 2.125 -- Using CMAKE_CUDA_ARCHITECTURES=86;89;120a CMAKE_CUDA_ARCHITECTURES_NATIVE=No CUDA devices found.-real
+#10 2.128 -- Found NCCL: /usr/lib/x86_64-linux-gnu/libnccl.so
+#10 2.149 -- CUDA host compiler is GNU 15.2.0
+#10 2.149 -- Including CUDA backend
+#10 2.152 -- ggml version: 0.22.0
+#10 2.152 -- ggml commit:  f095f4dd5
+#10 2.155 -- Fetching BoringSSL version 0.20260813.0
+#10 15.57 -- Generating embedded license file for target: llama-app
+#10 15.57 -- Configuring done (15.5s)
+#10 15.74 -- Generating done (0.2s)
+#10 15.74 -- Build files have been written to: /src/build
+#10 15.80 [  0%] Building CXX object _deps/boringssl-build/CMakeFiles/fipsmodule.dir/crypto/fipsmodule/bcm.cc.o
+#10 15.80 [  0%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml.cpp.o
+#10 15.80 [  0%] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-alloc.c.o
+#10 15.80 [  0%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-backend.cpp.o
+#10 15.80 [  0%] Building CXX object vendor/hash/CMakeFiles/vendor-hash.dir/hash.cpp.o
+#10 15.80 [  1%] Building CXX object common/CMakeFiles/llama-common-base.dir/build-info.cpp.o
+#10 15.80 [  1%] Building CXX object tools/ui/CMakeFiles/llama-ui-embed.dir/embed.cpp.o
+#10 15.80 [  1%] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml.c.o
+#10 15.88 /src/ggml/src/ggml.c: In function 'ggml_gated_delta_net':
+#10 15.88 /src/ggml/src/ggml.c:6416:19: warning: unused variable 'n_tokens' [-Wunused-variable]
+#10 15.88  6416 |     const int64_t n_tokens = v->ne[2];
+#10 15.88       |                   ^~~~~~~~
+#10 15.95 [  1%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-backend-meta.cpp.o
+#10 15.98 [  1%] Building C object vendor/hash/CMakeFiles/vendor-hash.dir/xxhash/xxhash.c.o
+#10 16.00 [  1%] Linking CXX static library libllama-common-base.a
+#10 16.02 [  1%] Built target llama-common-base
+#10 16.03 [  1%] Building CXX object vendor/hash/CMakeFiles/vendor-hash.dir/sha1/sha1.c.o
+#10 16.11 [  1%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-opt.cpp.o
+#10 16.14 [  1%] Building C object vendor/hash/CMakeFiles/vendor-hash.dir/sha256/sha256.c.o
+#10 16.25 [  1%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-threading.cpp.o
+#10 16.32 [  1%] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-quants.c.o
+#10 16.74 [  2%] Linking CXX static library libvendor-hash.a
+#10 16.76 [  2%] Built target vendor-hash
+#10 16.77 [  2%] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-xyzkv-quant.c.o
+#10 16.80 /src/ggml/src/ggml-xyzkv-quant.c:12:14: warning: 'xyzkv_cpu_wht_group_size' initialized and declared 'extern'
+#10 16.80    12 | GGML_API int xyzkv_cpu_wht_group_size = 0;
+#10 16.80       |              ^~~~~~~~~~~~~~~~~~~~~~~~
+#10 16.90 [  2%] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/gguf.cpp.o
+#10 17.14 [  2%] Linking CXX executable llama-ui-embed
+#10 17.19 [  2%] Built target llama-ui-embed
+#10 17.21 [  2%] Provisioning UI assets
+#10 17.21 -- UI: downloading from b10805: https://huggingface.co/buckets/ggml-org/llama-ui/resolve/b10805/dist.tar.gz
+#10 17.44 -- UI: download dist.tar.gz from b10805 failed: "HTTP response code said error"
+#10 17.44 -- UI: downloading from latest: https://huggingface.co/buckets/ggml-org/llama-ui/resolve/latest/dist.tar.gz
+#10 18.42 -- UI: archive verified and extracted
+#10 18.42 -- UI: HF download succeeded, stamp updated (latest)
+#10 18.92 -- UI: gzip compression applied (/src/build/tools/ui/dist/_gzip)
+#10 18.93 
+#10 18.93 current asset files:
+#10 18.93     _app/immutable/assets/0.NgFRQ5lY.css
+#10 18.93     _app/immutable/assets/LlamaMono.7z2dnkpH.woff2
+#10 18.93     _app/immutable/assets/LlamaSans.C2rXtH67.woff2
+#10 18.93     _app/immutable/assets/app.BkGJAZ7D.css
+#10 18.93     _app/immutable/assets/nerdamer.Cl-GVG6T.js
+#10 18.93     _app/immutable/assets/pdf.worker.min.DbR_HJhJ.mjs
+#10 18.93     _app/immutable/chunks/1CIrbR2Q.js
+#10 18.93     _app/immutable/chunks/1l-8ymtB.js
+#10 18.93     _app/immutable/chunks/26Y1-4rB.js
+#10 18.93     _app/immutable/chunks/3SQ5KT5a.js
+#10 18.93     _app/immutable/chunks/3ymKbqSp.js
+#10 18.93     _app/immutable/chunks/531-IPPG.js
+#10 18.93     _app/immutable/chunks/5I1j5qRd.js
+#10 18.93     _app/immutable/chunks/5k5YNuRS.js
+#10 18.93     _app/immutable/chunks/73P-F8U9.js
+#10 18.93     _app/immutable/chunks/73lFXAp6.js
+#10 18.93     _app/immutable/chunks/8u8Pml-P.js
+#10 18.93     _app/immutable/chunks/B-P1Uyq8.js
+#10 18.93     _app/immutable/chunks/B-PCS5zA.js
+#10 18.93     _app/immutable/chunks/B1CroMsf.js
+#10 18.93     _app/immutable/chunks/B1F_0bnw.js
+#10 18.93     _app/immutable/chunks/B1pH5dXO.js
+#10 18.93     _app/immutable/chunks/B3koHNzP.js
+#10 18.93     _app/immutable/chunks/B4bepPhE.js
+#10 18.93     _app/immutable/chunks/B7MIMCXP.js
+#10 18.93     _app/immutable/chunks/BCEr2jAI.js
+#10 18.93     _app/immutable/chunks/BCRbq8jp.js
+#10 18.93     _app/immutable/chunks/BD9AMQkN.js
+#10 18.93     _app/immutable/chunks/BECLvyNb.js
+#10 18.93     _app/immutable/chunks/BGBfXPIx.js
+#10 18.93     _app/immutable/chunks/BGRQnnF2.js
+#10 18.93     _app/immutable/chunks/BGfA2oQG.js
+#10 18.93     _app/immutable/chunks/BHHhacaR.js
+#10 18.93     _app/immutable/chunks/BI2r-hyN.js
+#10 18.93     _app/immutable/chunks/BJ2OcN8V.js
+#10 18.93     _app/immutable/chunks/BLbzjUaV.js
+#10 18.93     _app/immutable/chunks/BMhS-uq9.js
+#10 18.93     _app/immutable/chunks/BNjRHcgO.js
+#10 18.93     _app/immutable/chunks/BOkolQqs.js
+#10 18.93     _app/immutable/chunks/BQvSqJrQ.js
+#10 18.93     _app/immutable/chunks/BSf_7YOu.js
+#10 18.93     _app/immutable/chunks/BUe16zE4.js
+#10 18.93     _app/immutable/chunks/BW462adD.js
+#10 18.93     _app/immutable/chunks/BWVYCPTK.js
+#10 18.93     _app/immutable/chunks/BWaJ3C7D.js
+#10 18.93     _app/immutable/chunks/BX-o3EIz.js
+#10 18.93     _app/immutable/chunks/BXgVOBG5.js
+#10 18.93     _app/immutable/chunks/BaXwJpWq.js
+#10 18.93     _app/immutable/chunks/BahAjTwm.js
+#10 18.93     _app/immutable/chunks/BakFZ2ml.js
+#10 18.93     _app/immutable/chunks/BcBB30ub.js
+#10 18.93     _app/immutable/chunks/BiMsFFN_.js
+#10 18.93     _app/immutable/chunks/BjYI8dhz.js
+#10 18.93     _app/immutable/chunks/Bjg1FiVd.js
+#10 18.93     _app/immutable/chunks/Bjy-W4x2.js
+#10 18.93     _app/immutable/chunks/BkW-mzl-.js
+#10 18.93     _app/immutable/chunks/BmerogBf.js
+#10 18.93     _app/immutable/chunks/Boj4HSji.js
+#10 18.93     _app/immutable/chunks/BpsPHbGc.js
+#10 18.93     _app/immutable/chunks/Bqj0DVIt.js
+#10 18.93     _app/immutable/chunks/BqpFWvKu.js
+#10 18.93     _app/immutable/chunks/BsbfJrTt.js
+#10 18.93     _app/immutable/chunks/BzWcX1gm.js
+#10 18.93     _app/immutable/chunks/C0zufGsU.js
+#10 18.93     _app/immutable/chunks/C3EegiWg.js
+#10 18.93     _app/immutable/chunks/C4-LAR4Q.js
+#10 18.93     _app/immutable/chunks/C5TQXDMb.js
+#10 18.93     _app/immutable/chunks/C7-SNsey.js
+#10 18.93     _app/immutable/chunks/C8bVcNXx.js
+#10 18.93     _app/immutable/chunks/C9Z__FYS.js
+#10 18.93     _app/immutable/chunks/C9lP4FWY.js
+#10 18.93     _app/immutable/chunks/CA93Z2eM.js
+#10 18.93     _app/immutable/chunks/CBFuTPWj.js
+#10 18.93     _app/immutable/chunks/CDc1Vb3D.js
+#10 18.93     _app/immutable/chunks/CEFdYGQ4.js
+#10 18.93     _app/immutable/chunks/CElFSg8P.js
+#10 18.93     _app/immutable/chunks/CGIj3Ot5.js
+#10 18.93     _app/immutable/chunks/CHTJ6C4a.js
+#10 18.93     _app/immutable/chunks/CJ1TLoQF.js
+#10 18.93     _app/immutable/chunks/CJH3ep_3.js
+#10 18.93     _app/immutable/chunks/CJb8JxGC.js
+#10 18.93     _app/immutable/chunks/CP1rWjpH.js
+#10 18.93     _app/immutable/chunks/CPLFVNxS.js
+#10 18.93     _app/immutable/chunks/CR1Ogma7.js
+#10 18.93     _app/immutable/chunks/CR3yefiA.js
+#10 18.93     _app/immutable/chunks/CR7dvLJ4.js
+#10 18.93     _app/immutable/chunks/CR9tZ93c.js
+#10 18.93     _app/immutable/chunks/CRcZGluc.js
+#10 18.93     _app/immutable/chunks/CSRnPoYO.js
+#10 18.93     _app/immutable/chunks/CSrFSEx0.js
+#10 18.93     _app/immutable/chunks/CVYb4e6m.js
+#10 18.93     _app/immutable/chunks/CWGByNpv.js
+#10 18.93     _app/immutable/chunks/CXP1cmYR.js
+#10 18.93     _app/immutable/chunks/CXnZM-Nf.js
+#10 18.93     _app/immutable/chunks/C_5_0OWv.js
+#10 18.93     _app/immutable/chunks/C_EjVcnO.js
+#10 18.93     _app/immutable/chunks/C_UcIgej.js
+#10 18.93     _app/immutable/chunks/C_mGJ3Jy.js
+#10 18.93     _app/immutable/chunks/CaM3tfvi.js
+#10 18.93     _app/immutable/chunks/CaU6e6N4.js
+#10 18.93     _app/immutable/chunks/Cb2OgvrR.js
+#10 18.93     _app/immutable/chunks/CcGrHbps.js
+#10 18.93     _app/immutable/chunks/Cgnqi5KA.js
+#10 18.93     _app/immutable/chunks/CiO3JXx7.js
+#10 18.93     _app/immutable/chunks/CjhsRFLe.js
+#10 18.93     _app/immutable/chunks/CkSV9Luo.js
+#10 18.93     _app/immutable/chunks/ClNaFHRt.js
+#10 18.93     _app/immutable/chunks/CpIe18ku.js
+#10 18.93     _app/immutable/chunks/CpMp0mBm.js
+#10 18.93     _app/immutable/chunks/CpiLaDrO.js
+#10 18.93     _app/immutable/chunks/Cu9sx8W2.js
+#10 18.93     _app/immutable/chunks/CvqMZYuf.js
+#10 18.93     _app/immutable/chunks/CxTKDHeA.js
+#10 18.93     _app/immutable/chunks/D-4KA1m9.js
+#10 18.93     _app/immutable/chunks/D3oKByup.js
+#10 18.93     _app/immutable/chunks/D463B8d-.js
+#10 18.93     _app/immutable/chunks/D5l_8KUR.js
+#10 18.93     _app/immutable/chunks/D5uGO-jm.js
+#10 18.93     _app/immutable/chunks/D6zc0cUO.js
+#10 18.93     _app/immutable/chunks/D8SR3GGH.js
+#10 18.93     _app/immutable/chunks/DC-R59BF.js
+#10 18.93     _app/immutable/chunks/DEWZKVv3.js
+#10 18.93     _app/immutable/chunks/DEdPwm2c.js
+#10 18.93     _app/immutable/chunks/DGOW1qT8.js
+#10 18.93     _app/immutable/chunks/DGokiC3s.js
+#10 18.93     _app/immutable/chunks/DGs-X5Vp.js
+#10 18.93     _app/immutable/chunks/DJFrA4nv.js
+#10 18.93     _app/immutable/chunks/DJqXWVRL.js
+#10 18.93     _app/immutable/chunks/DLXDdhyK.js
+#10 18.93     _app/immutable/chunks/DM8HP7qn.js
+#10 18.93     _app/immutable/chunks/DMzbk8qN.js
+#10 18.93     _app/immutable/chunks/DNWPCnjT.js
+#10 18.93     _app/immutable/chunks/DO8eeo3I.js
+#10 18.93     _app/immutable/chunks/DOTrSD3H.js
+#10 18.93     _app/immutable/chunks/DQKGwi3G.js
+#10 18.93     _app/immutable/chunks/DRbqW1u4.js
+#10 18.93     _app/immutable/chunks/DS4EA3dC.js
+#10 18.93     _app/immutable/chunks/DSQwiuj1.js
+#10 18.93     _app/immutable/chunks/DTzUSEH8.js
+#10 18.93     _app/immutable/chunks/DV7smCjo.js
+#10 18.93     _app/immutable/chunks/DVi5cKOT.js
+#10 18.93     _app/immutable/chunks/DWRKyvJ-.js
+#10 18.93     _app/immutable/chunks/DZJEcL8n.js
+#10 18.93     _app/immutable/chunks/D_ESCULk.js
+#10 18.93     _app/immutable/chunks/Da8STgqx.js
+#10 18.93     _app/immutable/chunks/DasnpDVC.js
+#10 18.93     _app/immutable/chunks/DclECHGd.js
+#10 18.93     _app/immutable/chunks/DdjbPXam.js
+#10 18.93     _app/immutable/chunks/DeCngaqu.js
+#10 18.93     _app/immutable/chunks/Dg6dmf5K.js
+#10 18.93     _app/immutable/chunks/Dh71fdD_.js
+#10 18.93     _app/immutable/chunks/Dh9PJFmJ.js
+#10 18.93     _app/immutable/chunks/Dhhcn_CA.js
+#10 18.93     _app/immutable/chunks/DjOhhVLG.js
+#10 18.93     _app/immutable/chunks/DkTKhn5C.js
+#10 18.93     _app/immutable/chunks/DoVWcw3Q.js
+#10 18.93     _app/immutable/chunks/DptdJbGO.js
+#10 18.93     _app/immutable/chunks/DqHi-6vF.js
+#10 18.93     _app/immutable/chunks/Dr9rmg8t.js
+#10 18.93     _app/immutable/chunks/Dv0yWYFF.js
+#10 18.93     _app/immutable/chunks/DvbP7u24.js
+#10 18.93     _app/immutable/chunks/DwUuKi_Q.js
+#10 18.93     _app/immutable/chunks/DwhXSSGr.js
+#10 18.93     _app/immutable/chunks/Dxj7e8BX.js
+#10 18.93     _app/immutable/chunks/F90s6HK_.js
+#10 18.93     _app/immutable/chunks/FGVCSpsQ.js
+#10 18.93     _app/immutable/chunks/GZmu99Fo.js
+#10 18.93     _app/immutable/chunks/Hak9sRVf.js
+#10 18.93     _app/immutable/chunks/Hj_vmM07.js
+#10 18.93     _app/immutable/chunks/JVA7wRWo.js
+#10 18.93     _app/immutable/chunks/KNgW1fZo.js
+#10 18.93     _app/immutable/chunks/Ke-GOEW9.js
+#10 18.93     _app/immutable/chunks/LZCIum1w.js
+#10 18.93     _app/immutable/chunks/NqH9ctA4.js
+#10 18.93     _app/immutable/chunks/PigSugnL.js
+#10 18.93     _app/immutable/chunks/QAx8GmV3.js
+#10 18.93     _app/immutable/chunks/Qa3iLJWP.js
+#10 18.93     _app/immutable/chunks/V0F2hNk9.js
+#10 18.93     _app/immutable/chunks/Vgr6fxPS.js
+#10 18.93     _app/immutable/chunks/Wu2ux-Fn.js
+#10 18.93     _app/immutable/chunks/YB8mb-y7.js
+#10 18.93     _app/immutable/chunks/YlWmQdSJ.js
+#10 18.93     _app/immutable/chunks/YlzcZYWN.js
+#10 18.93     _app/immutable/chunks/ZpNubZZ_.js
+#10 18.93     _app/immutable/chunks/aGu1RaYf.js
+#10 18.93     _app/immutable/chunks/aHBM9jLK.js
+#10 18.93     _app/immutable/chunks/aZNm1DXx.js
+#10 18.93     _app/immutable/chunks/bShcHfOZ.js
+#10 18.93     _app/immutable/chunks/cD8rF-Vw.js
+#10 18.93     _app/immutable/chunks/dTiwAriW.js
+#10 18.93     _app/immutable/chunks/hBR4I1od.js
+#10 18.93     _app/immutable/chunks/hKzGh-52.js
+#10 18.93     _app/immutable/chunks/iLCLl-5n.js
+#10 18.93     _app/immutable/chunks/ifxXhTOO.js
+#10 18.93     _app/immutable/chunks/jK6vAkqq.js
+#10 18.93     _app/immutable/chunks/lM-YLvZH.js
+#10 18.93     _app/immutable/chunks/nSe0mzJm.js
+#10 18.93     _app/immutable/chunks/oUUdvLrs.js
+#10 18.93     _app/immutable/chunks/p0dfWXuO.js
+#10 18.93     _app/immutable/chunks/p0pDTEuW.js
+#10 18.93     _app/immutable/chunks/p7Fa3A78.js
+#10 18.93     _app/immutable/chunks/qGz9CBa_.js
+#10 18.93     _app/immutable/chunks/rqf_V7Lc.js
+#10 18.93     _app/immutable/chunks/tFw2_zZo.js
+#10 18.93     _app/immutable/chunks/tYyfRjr6.js
+#10 18.93     _app/immutable/chunks/tnVFwE0j.js
+#10 18.93     _app/immutable/chunks/tuAJdZsI.js
+#10 18.93     _app/immutable/chunks/upDuL0ca.js
+#10 18.93     _app/immutable/chunks/wv2tBZQi.js
+#10 18.93     _app/immutable/chunks/xylFSQAW.js
+#10 18.93     _app/immutable/chunks/zdpkyKaR.js
+#10 18.93     _app/immutable/entry/app.DsxjKOsH.js
+#10 18.93     _app/immutable/entry/payload.DSmR2FwN.js
+#10 18.93     _app/immutable/entry/start.R0Xo1HAL.js
+#10 18.93     _app/immutable/nodes/0.CD5ZB7bk.js
+#10 18.93     _app/immutable/nodes/1.li_mYy-u.js
+#10 18.93     _app/immutable/nodes/2.DX4ySzdi.js
+#10 18.93     _app/immutable/nodes/3.DkOR0T40.js
+#10 18.93     _app/immutable/nodes/4.DskxgQhH.js
+#10 18.93     _app/immutable/nodes/5.BsGvtEje.js
+#10 18.93     _app/immutable/nodes/6.CqOrIHPd.js
+#10 18.93     _app/immutable/nodes/7.BplF_co3.js
+#10 18.93     _app/immutable/nodes/8.DDSnD1Td.js
+#10 18.93     _app/version.json
+#10 18.93     apple-splash-landscape-1136x640.png
+#10 18.93     apple-splash-landscape-1334x750.png
+#10 18.93     apple-splash-landscape-2266x1488.png
+#10 18.93     apple-splash-landscape-2360x1640.png
+#10 18.93     apple-splash-landscape-2388x1668.png
+#10 18.93     apple-splash-landscape-2532x1170.png
+#10 18.93     apple-splash-landscape-2556x1179.png
+#10 18.93     apple-splash-landscape-2622x1206.png
+#10 18.93     apple-splash-landscape-2732x2048.png
+#10 18.93     apple-splash-landscape-2778x1284.png
+#10 18.93     apple-splash-landscape-2796x1290.png
+#10 18.93     apple-splash-landscape-2868x1320.png
+#10 18.93     apple-splash-landscape-dark-1136x640.png
+#10 18.93     apple-splash-landscape-dark-1334x750.png
+#10 18.93     apple-splash-landscape-dark-2266x1488.png
+#10 18.93     apple-splash-landscape-dark-2360x1640.png
+#10 18.93     apple-splash-landscape-dark-2388x1668.png
+#10 18.93     apple-splash-landscape-dark-2532x1170.png
+#10 18.93     apple-splash-landscape-dark-2556x1179.png
+#10 18.93     apple-splash-landscape-dark-2622x1206.png
+#10 18.93     apple-splash-landscape-dark-2732x2048.png
+#10 18.93     apple-splash-landscape-dark-2778x1284.png
+#10 18.93     apple-splash-landscape-dark-2796x1290.png
+#10 18.93     apple-splash-landscape-dark-2868x1320.png
+#10 18.93     apple-splash-portrait-1170x2532.png
+#10 18.93     apple-splash-portrait-1179x2556.png
+#10 18.93     apple-splash-portrait-1206x2622.png
+#10 18.93     apple-splash-portrait-1284x2778.png
+#10 18.93     apple-splash-portrait-1290x2796.png
+#10 18.93     apple-splash-portrait-1320x2868.png
+#10 18.93     apple-splash-portrait-1488x2266.png
+#10 18.93     apple-splash-portrait-1640x2360.png
+#10 18.93     apple-splash-portrait-1668x2388.png
+#10 18.93     apple-splash-portrait-2048x2732.png
+#10 18.93     apple-splash-portrait-640x1136.png
+#10 18.93     apple-splash-portrait-750x1334.png
+#10 18.93     apple-splash-portrait-dark-1170x2532.png
+#10 18.93     apple-splash-portrait-dark-1179x2556.png
+#10 18.93     apple-splash-portrait-dark-1206x2622.png
+#10 18.93     apple-splash-portrait-dark-1284x2778.png
+#10 18.93     apple-splash-portrait-dark-1290x2796.png
+#10 18.93     apple-splash-portrait-dark-1320x2868.png
+#10 18.93     apple-splash-portrait-dark-1488x2266.png
+#10 18.93     apple-splash-portrait-dark-1640x2360.png
+#10 18.93     apple-splash-portrait-dark-1668x2388.png
+#10 18.93     apple-splash-portrait-dark-2048x2732.png
+#10 18.93     apple-splash-portrait-dark-640x1136.png
+#10 18.93     apple-splash-portrait-dark-750x1334.png
+#10 18.93     apple-touch-icon-180x180.png
+#10 18.93     build.json
+#10 18.93     favicon-dark.ico
+#10 18.93     favicon-dark.svg
+#10 18.93     favicon.ico
+#10 18.93     favicon.svg
+#10 18.93     index.html
+#10 18.93     manifest.webmanifest
+#10 18.93     maskable-icon-512x512.png
+#10 18.93     pwa-192x192.png
+#10 18.93     pwa-512x512.png
+#10 18.93     pwa-64x64.png
+#10 18.93     recommended-mcp/context7.png
+#10 18.93     recommended-mcp/exa.ico
+#10 18.93     recommended-mcp/github-dark.png
+#10 18.93     recommended-mcp/github-light.png
+#10 18.93     recommended-mcp/huggingface.ico
+#10 18.93     service-worker.js
+#10 18.93     sw.js
+#10 18.93 missing required asset(s):
+#10 18.93     bundle[hash].js
+#10 18.93     bundle[hash].css
+#10 18.93     workbox[hash].js
+#10 18.93 hint: try cleaning your build directory: /src/build/tools/ui/dist/_gzip
+#10 18.93 CMake Error at /src/scripts/ui-assets.cmake:291 (message):
+#10 18.93   UI: llama-ui-embed failed (1)
+#10 18.93 Call Stack (most recent call first):
+#10 18.93   /src/scripts/ui-assets.cmake:367 (emit_files)
+#10 18.93 
+#10 18.93 
+#10 18.93 gmake[3]: *** [tools/ui/CMakeFiles/llama-ui-assets.dir/build.make:71: tools/ui/CMakeFiles/llama-ui-assets] Error 1
+#10 18.93 gmake[2]: *** [CMakeFiles/Makefile2:6338: tools/ui/CMakeFiles/llama-ui-assets.dir/all] Error 2
+#10 18.93 gmake[2]: *** Waiting for unfinished jobs....
+#10 20.24 [  4%] Linking CXX shared library ../../bin/libggml-base.so
+#10 20.30 [  4%] Built target ggml-base
+#10 29.47 [  4%] Built target fipsmodule
+#10 29.47 gmake[1]: *** [CMakeFiles/Makefile2:6596: tools/server/CMakeFiles/llama-server.dir/rule] Error 2
+#10 29.47 gmake: *** [Makefile:1947: llama-server] Error 2
 #10 ERROR: process "/bin/sh -c cmake -B build -DGGML_CUDA=ON -DGGML_NATIVE=OFF -DCMAKE_BUILD_TYPE=Release       -DCMAKE_CUDA_ARCHITECTURES=\"${CUDA_ARCHS}\" ${CMAKE_EXTRA}  && cmake --build build --config Release -j${JOBS} --target llama-server" did not complete successfully: exit code: 2
 ------
  > [build 5/6] RUN cmake -B build -DGGML_CUDA=ON -DGGML_NATIVE=OFF -DCMAKE_BUILD_TYPE=Release       -DCMAKE_CUDA_ARCHITECTURES="86;89;120" -DLLAMA_BUILD_BORINGSSL=ON  && cmake --build build --config Release -j8 --target llama-server:
-17.43 
-17.43 
-17.43 gmake[3]: *** [tools/ui/CMakeFiles/llama-ui-assets.dir/build.make:71: tools/ui/CMakeFiles/llama-ui-assets] Error 1
-17.43 gmake[2]: *** [CMakeFiles/Makefile2:6338: tools/ui/CMakeFiles/llama-ui-assets.dir/all] Error 2
-17.43 gmake[2]: *** Waiting for unfinished jobs....
-20.11 [  4%] Linking CXX shared library ../../bin/libggml-base.so
-20.17 [  4%] Built target ggml-base
-27.86 [  4%] Built target fipsmodule
-27.86 gmake[1]: *** [CMakeFiles/Makefile2:6596: tools/server/CMakeFiles/llama-server.dir/rule] Error 2
-27.86 gmake: *** [Makefile:1947: llama-server] Error 2
+18.93 
+18.93 
+18.93 gmake[3]: *** [tools/ui/CMakeFiles/llama-ui-assets.dir/build.make:71: tools/ui/CMakeFiles/llama-ui-assets] Error 1
+18.93 gmake[2]: *** [CMakeFiles/Makefile2:6338: tools/ui/CMakeFiles/llama-ui-assets.dir/all] Error 2
+18.93 gmake[2]: *** Waiting for unfinished jobs....
+20.24 [  4%] Linking CXX shared library ../../bin/libggml-base.so
+20.30 [  4%] Built target ggml-base
+29.47 [  4%] Built target fipsmodule
+29.47 gmake[1]: *** [CMakeFiles/Makefile2:6596: tools/server/CMakeFiles/llama-server.dir/rule] Error 2
+29.47 gmake: *** [Makefile:1947: llama-server] Error 2
 ------
 Dockerfile:19
 --------------------
