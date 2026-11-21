@@ -16,7 +16,7 @@ RUN test -n "$REPO" && test -n "$REF" \
  && git clone "$REPO" /src && git -C /src checkout "$REF"
 WORKDIR /src
 # Remove any stale UI dist so the OFF flags are actually respected.
-RRUN rm -rf build tools/ui/dist
+RUN rm -rf build tools/ui/dist
 # Explicit archs (no GPU to autodetect). NATIVE=OFF so the CPU code runs on any node.
 RUN cmake -B build -DGGML_CUDA=ON -DGGML_NATIVE=OFF -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_CUDA_ARCHITECTURES="${CUDA_ARCHS}" ${CMAKE_EXTRA} \
