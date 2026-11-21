@@ -1,9 +1,121 @@
-import asyncio, base64, json, os, subprocess, time, uuid
+import asyncio, base64, difflib, glob, json, os, signal, subprocess, time, uuid
 import httpx
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
+from typing import Optional
+
+ENABLE_ARTIFACTS = True  # False = pop and ignore the client's `artifacts`, and don't expose artifact tools
+SEND_PER_BATCH = 100  # deltas buffered before one encrypted packet is sent
+
+WEB_TOOLS = [
+  {"type": "function", "function": {
+    "name": "web_search",
+    "description": (
+      "Search the web for information. Use this when you need current or factual information, "
+      "for research comparison, documentation, and troubleshooting questions. "
+      "Multiple `search_queries` can be issued in a single call."),
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "objective": {"type": "string", "description":
+          "One-sentence goal of this search. Keep it to one goal. May name preferred sources or how recent results should be."},
+        "search_queries": {"type": "array", "items": {"type": "string"}, "description":
+          "Keyword queries of 3-6 words each. At least one required; 2-3 work best. "
+          "The `site:` operator takes a bare domain, not a URL path. Do not use quoted phrases."},
+      },
+      "required": ["objective", "search_queries"],
+    },
+  }},
+  {"type": "function", "function": {
+    "name": "web_fetch",
+    "description": (
+      "Fetch and extract relevant content from specific web URLs. Use only when "
+      "web_search excerpts are insufficient, or when the user asked about a specific URL or page, "
+      "or you need exact wording or quotes that excerpts may have truncated, or a full-page analysis, "
+      "or when web_search excerpts are conflicting or clearly insufficient to answer."),
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "objective": {"type": "string", "description":
+          "What to look for in the pages. Maximum 200 characters."},
+        "urls": {"type": "array", "items": {"type": "string"}, "description":
+          "HTTP or HTTPS URLs to read. Maximum 20 per call."},
+        "search_queries": {"type": "array", "items": {"type": "string"}, "description":
+          "Optional. Keyword queries of 3-6 words each that focus the excerpts. "
+          "When fetching results from web_search, pass the same queries."},
+      },
+      "required": ["objective", "urls"],
+    },
+  }},
+  {"type": "function", "function": {
+    "name": "image_search",
+    "description": (
+      "Find images on the web. Returns direct image URLs, the page each image appears on, "
+      "the page title, and pixel dimensions when known. Results link to images but do not "
+      "describe them; for information about a subject, use web_search instead. "
+      "Use only when the user needs to see or obtain an image."),
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "objective": {"type": "string", "description":
+          "Natural-language description of the images to find, including subject, style, or context "
+          "that should rank them, such as 'official headshot' or 'diagram, not a photo'."},
+        "search_queries": {"type": "array", "items": {"type": "string"}, "description":
+          "1-3 keyword queries of 2-6 words each, up to 200 characters each."},
+      },
+      "required": ["objective", "search_queries"],
+    },
+  }},
+]
+ARTIFACT_TOOLS = [
+  {"type": "function", "function": {
+    "name": "artifact_create",
+    "description": (
+      "Create a new artifact (a standalone file or document the user keeps and iterates on), or fully "
+      "overwrite an existing one by reusing its `id`. Use for new files and for rewrites touching most of the "
+      "file. For small or local changes use `artifact_edit` instead. `content` is the raw file content; "
+      "do not wrap it in code fences."),
+    "parameters": {"type": "object", "properties": {
+      "id": {"type": "string", "description": "Short stable slug, e.g. 'meet-locs-service'."},
+      "title": {"type": "string", "description": "Human-readable title or filename."},
+      "type": {"type": "string", "enum": ["code", "markdown", "html", "text"]},
+      "language": {"type": "string", "description": "Optional. Programming language when type is code."},
+      "content": {"type": "string", "description": "Full raw content of the file."},
+    }, "required": ["id", "title", "type", "content"]},
+  }},
+  {"type": "function", "function": {
+    "name": "artifact_edit",
+    "description": (
+      "Edit an existing artifact by find-and-replace. `find` must match the current content EXACTLY "
+      "(whitespace, indentation, newlines) and must occur exactly once, so include enough surrounding lines "
+      "to make it unique (unless replace_all is true). Copy `find` verbatim from the artifact; never include "
+      "line numbers. To insert, `find` an anchor and put anchor + new text in `replace`. Empty `replace` "
+      "deletes. Multiple calls in one turn are applied in order, each against the result of the previous."),
+    "parameters": {"type": "object", "properties": {
+      "id": {"type": "string"},
+      "find": {"type": "string", "description": "Exact existing text to replace."},
+      "replace": {"type": "string", "description": "New text. May be empty."},
+      "replace_all": {"type": "boolean", "description": "Replace every occurrence. Default false."},
+    }, "required": ["id", "find", "replace"]},
+  }},
+  {"type": "function", "function": {
+    "name": "artifact_view",
+    "description": "Return the current raw content of an artifact. Use only if unsure what it currently contains.",
+    "parameters": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]},
+  }},
+]
+TOOLS = WEB_TOOLS + (ARTIFACT_TOOLS if ENABLE_ARTIFACTS else [])
+ARTIFACT_TOOL_NAMES = {t["function"]["name"] for t in ARTIFACT_TOOLS} if ENABLE_ARTIFACTS else set()
+
+# Sampling: model card, thinking mode. (llama.cpp names it repeat_penalty; see translation in chat().)
+OPENAI_PARAMS = {"max_tokens", "temperature", "top_p", "frequency_penalty", "presence_penalty",
+  "stop", "n", "seed", "logprobs", "prompt", "best_of", "echo", "logit_bias",
+  "stream_options", "suffix", "user"}
+INFERENCE_DEFAULTS = {"max_tokens": 32768, "temperature": 1.0, "top_p": 0.95,
+  "top_k": 20, "min_p": 0.05, "presence_penalty": 0.0, "repeat_penalty": 1.0}
+REASONING_EFFORTS = ("medium", "xhigh")  # "low" is unsupported by the model (behaves like xhigh)
 
 PORT = int(os.environ.get('PORT', '8081'))
 MODEL_NAME = 'bonsai-2-27b'
@@ -37,7 +149,15 @@ async def _guarded(action):   # no os.kill any more; entrypoint.sh handles crash
         print(f'[error] {e!r}', flush=True)
         raise HTTPException(502, 'backend error')
 
-# _run_mlkem: unchanged
+async def _run_mlkem(*args: str, input_data: Optional[str] = None) -> dict:
+  proc = await asyncio.to_thread(subprocess.run, [MLKEM_PATH, *args],
+    input=input_data, capture_output=True, text=True)
+  if proc.returncode != 0:
+    try: detail = json.loads(proc.stdout).get("error", proc.stderr.strip())
+    except Exception: detail = proc.stderr.strip() or "Unknown MLKem Error"
+    raise HTTPException(400, f"[mlkem]: {detail}")
+  try: return json.loads(proc.stdout)
+  except json.JSONDecodeError: raise HTTPException(500, "Invalid JSON from mlkem")
 
 def _seal(dk: str, client_ek: str) -> str:
     nonce = os.urandom(12)
@@ -85,194 +205,192 @@ async def with_keepalive(agen, interval: float = 15):
         task.cancel()   # client gone: upstream stream closes, llama-server aborts and frees the slot
 
 @api.post("/chat")
-    async def chat(request: dict, x_session_id: Optional[str] = Header(default="default")):
-      async def _():
-        session = await _get_session(x_session_id)
-        server_dk = session.pop("dk", None)
-        client_ek = session.get("client_ek")
-        if not server_dk or not client_ek: raise HTTPException(400, "No handshake found. Call /v1/handshake first.")
+async def chat(request: dict):
+  async def _():
+    if not await _llama_ready(): raise HTTPException(503, "model loading")
+    token = request.get("token")
+    if not token: raise HTTPException(400, "Missing token")
+    server_dk, client_ek = _open(token)
 
-        ct = request.get("ct")
-        em = request.get("em")
-        if not ct or not em: raise HTTPException(400, "Missing ct/em.")
+    ct = request.get("ct")
+    em = request.get("em")
+    if not ct or not em: raise HTTPException(400, "Missing ct/em.")
 
-        retval = await _run_mlkem("decapsulate-and-decrypt", "--from-stdin",
-          input_data=json.dumps({"dk": server_dk, "ciphertext": ct, "encrypted_message": em}))
-        payload = json.loads(retval["plaintext"])
-        messages = payload.pop("messages", [])
-        if not isinstance(messages, list): raise HTTPException(400, "plaintext must be JSON with 'messages' array.")
-        reasoning_effort = payload.pop("reasoning_effort", "xhigh")  # default xhigh
-        if reasoning_effort not in REASONING_EFFORTS: reasoning_effort = "xhigh"
+    retval = await _run_mlkem("decapsulate-and-decrypt", "--from-stdin",
+      input_data=json.dumps({"dk": server_dk, "ciphertext": ct, "encrypted_message": em}))
+    payload = json.loads(retval["plaintext"])
+    messages = payload.pop("messages", [])
+    if not isinstance(messages, list): raise HTTPException(400, "plaintext must be JSON with 'messages' array.")
+    reasoning_effort = payload.pop("reasoning_effort", "xhigh")  # default xhigh
+    if reasoning_effort not in REASONING_EFFORTS: reasoning_effort = "xhigh"
 
-        # Artifacts: popped BEFORE params is built, so they never leak into sampling params.
-        raw_artifacts = payload.pop("artifacts", None) or {}
-        if not isinstance(raw_artifacts, dict): raise HTTPException(400, "'artifacts' must be an object keyed by id.")
-        artifacts = _norm_artifacts(raw_artifacts) if ENABLE_ARTIFACTS else {}
-        if artifacts: messages = inject_artifacts(messages, artifacts)
+    # Artifacts: popped BEFORE params is built, so they never leak into sampling params.
+    raw_artifacts = payload.pop("artifacts", None) or {}
+    if not isinstance(raw_artifacts, dict): raise HTTPException(400, "'artifacts' must be an object keyed by id.")
+    artifacts = _norm_artifacts(raw_artifacts) if ENABLE_ARTIFACTS else {}
+    if artifacts: messages = inject_artifacts(messages, artifacts)
 
-        params = {**INFERENCE_DEFAULTS, **payload}  # payload overrides defaults.
-        # vLLM/SGLang name -> llama.cpp name
-        if "repetition_penalty" in params: params["repeat_penalty"] = params.pop("repetition_penalty")
-        # Unknown params could raise in the OpenAI client, so split them into extra_body.
-        standard = {k: v for k, v in params.items() if k in OPENAI_PARAMS}
-        extra    = {k: v for k, v in params.items() if k not in OPENAI_PARAMS}
-        # The model reads reasoning_effort from the chat template kwargs; the top-level field is sent too.
-        extra_body = {**extra, "chat_template_kwargs": {"reasoning_effort": reasoning_effort}}
+    params = {**INFERENCE_DEFAULTS, **payload}  # payload overrides defaults.
+    # vLLM/SGLang name -> llama.cpp name
+    if "repetition_penalty" in params: params["repeat_penalty"] = params.pop("repetition_penalty")
+    # Unknown params could raise in the OpenAI client, so split them into extra_body.
+    standard = {k: v for k, v in params.items() if k in OPENAI_PARAMS}
+    extra    = {k: v for k, v in params.items() if k not in OPENAI_PARAMS}
+    # The model reads reasoning_effort from the chat template kwargs; the top-level field is sent too.
+    extra_body = {**extra, "chat_template_kwargs": {"reasoning_effort": reasoning_effort}}
 
-        # Remove dk, keep client_ek until stream pre-key is computed.
-        encap_res = await _run_mlkem("encapsulate-and-encrypt", "--from-stdin",
-          input_data=json.dumps({"ek": client_ek, "plaintext": ""}))
-        resp_ct, resp_ss = encap_res["ciphertext"], encap_res["shared_secret"]
-        resp_em = encap_res["encrypted_message"]
-        session.pop("client_ek", None)
-        await _save_session(x_session_id, session)
+    # Remove dk, keep client_ek until stream pre-key is computed.
+    encap_res = await _run_mlkem("encapsulate-and-encrypt", "--from-stdin",
+      input_data=json.dumps({"ek": client_ek, "plaintext": ""}))
+    resp_ct, resp_ss = encap_res["ciphertext"], encap_res["shared_secret"]
+    resp_em = encap_res["encrypted_message"]
 
-        async def generate():
-          r_buf, t_buf = [], []
-          first_sent = False
+    async def generate():
+      r_buf, t_buf = [], []
+      first_sent = False
 
-          async def _emit_json(typ: str, obj: dict):
-            nonlocal first_sent
-            enc = await _run_mlkem("encrypt", "--from-stdin",
-              input_data=json.dumps({"key": resp_ss, "plaintext": json.dumps(obj)}))
-            pkt = {"type": typ, "content": enc["ciphertext"]}
-            if not first_sent:
-              pkt["ct"], pkt["em"] = resp_ct, resp_em
-              first_sent = True
-            yield f"data: {json.dumps(pkt)}\n\n"
+      async def _emit_json(typ: str, obj: dict):
+        nonlocal first_sent
+        enc = await _run_mlkem("encrypt", "--from-stdin",
+          input_data=json.dumps({"key": resp_ss, "plaintext": json.dumps(obj)}))
+        pkt = {"type": typ, "content": enc["ciphertext"]}
+        if not first_sent:
+          pkt["ct"], pkt["em"] = resp_ct, resp_em
+          first_sent = True
+        yield f"data: {json.dumps(pkt)}\n\n"
 
-          async def _emit(buf: list, typ: str):
-            nonlocal first_sent
-            if not buf: return
-            enc = await _run_mlkem("encrypt", "--from-stdin",
-              input_data=json.dumps({"key": resp_ss, "plaintext": "".join(buf)}))
-            buf.clear()
-            pkt = {"type": typ, "content": enc["ciphertext"]}
-            if not first_sent:
-              pkt["ct"], pkt["em"] = resp_ct, resp_em
-              first_sent = True
-            yield f"data: {json.dumps(pkt)}\n\n"
+      async def _emit(buf: list, typ: str):
+        nonlocal first_sent
+        if not buf: return
+        enc = await _run_mlkem("encrypt", "--from-stdin",
+          input_data=json.dumps({"key": resp_ss, "plaintext": "".join(buf)}))
+        buf.clear()
+        pkt = {"type": typ, "content": enc["ciphertext"]}
+        if not first_sent:
+          pkt["ct"], pkt["em"] = resp_ct, resp_em
+          first_sent = True
+        yield f"data: {json.dumps(pkt)}\n\n"
 
-          loop_start = time.monotonic()
-          tot_prompt_toks = tot_compl_toks = 0
+      loop_start = time.monotonic()
+      tot_prompt_toks = tot_compl_toks = 0
 
-          while True:
-            acc_tool_calls: dict = {}
-            finish_reason = None
-            stream = await client.chat.completions.create(model=MODEL_NAME, messages=messages,
-              tools=TOOLS, tool_choice="auto", stream=True, stream_options={"include_usage": True},
-              reasoning_effort=reasoning_effort, extra_body=extra_body, **standard)
-            async for chunk in stream:
-              if not chunk.choices:
-                if chunk.usage:  # usage arrives in a final chunk with empty choices.
-                  tot_prompt_toks += chunk.usage.prompt_tokens
-                  tot_compl_toks  += chunk.usage.completion_tokens
-                continue
-              choice = chunk.choices[0]
-              delta = choice.delta
-              finish_reason = choice.finish_reason or finish_reason
+      while True:
+        acc_tool_calls: dict = {}
+        finish_reason = None
+        stream = await client.chat.completions.create(model=MODEL_NAME, messages=messages,
+          tools=TOOLS, tool_choice="auto", stream=True, stream_options={"include_usage": True},
+          reasoning_effort=reasoning_effort, extra_body=extra_body, **standard)
+        async for chunk in stream:
+          if not chunk.choices:
+            if chunk.usage:  # usage arrives in a final chunk with empty choices.
+              tot_prompt_toks += chunk.usage.prompt_tokens
+              tot_compl_toks  += chunk.usage.completion_tokens
+            continue
+          choice = chunk.choices[0]
+          delta = choice.delta
+          finish_reason = choice.finish_reason or finish_reason
 
-              # llama-server (deepseek-style reasoning format) uses reasoning_content.
-              # `if raw:` (not raw.strip()) so newline-only deltas between paragraphs aren't dropped.
-              raw = getattr(delta, 'reasoning_content', None) or getattr(delta, 'reasoning', None)
-              if raw:
-                async for ev in _emit(t_buf, "text"): yield ev  # flush text if switching back.
-                r_buf.append(raw)
-                if len(r_buf) >= SEND_PER_BATCH:
-                  async for ev in _emit(r_buf, "reasoning"): yield ev
+          # llama-server (deepseek-style reasoning format) uses reasoning_content.
+          # `if raw:` (not raw.strip()) so newline-only deltas between paragraphs aren't dropped.
+          raw = getattr(delta, 'reasoning_content', None) or getattr(delta, 'reasoning', None)
+          if raw:
+            async for ev in _emit(t_buf, "text"): yield ev  # flush text if switching back.
+            r_buf.append(raw)
+            if len(r_buf) >= SEND_PER_BATCH:
+              async for ev in _emit(r_buf, "reasoning"): yield ev
 
-              if delta.content:
-                async for ev in _emit(r_buf, "reasoning"): yield ev  # flush reasoning on switch.
-                t_buf.append(delta.content)
-                if len(t_buf) >= SEND_PER_BATCH:
-                  async for ev in _emit(t_buf, "text"): yield ev
+          if delta.content:
+            async for ev in _emit(r_buf, "reasoning"): yield ev  # flush reasoning on switch.
+            t_buf.append(delta.content)
+            if len(t_buf) >= SEND_PER_BATCH:
+              async for ev in _emit(t_buf, "text"): yield ev
 
-              # Accumulate for tool calls.
-              if delta.tool_calls:
-                for tc in delta.tool_calls:
-                  i = tc.index
-                  if i not in acc_tool_calls: acc_tool_calls[i] = {"id": "", "name": "", "arguments": ""}
-                  if tc.id: acc_tool_calls[i]["id"] = tc.id
-                  fn = tc.function
-                  if fn and fn.name: acc_tool_calls[i]["name"] = fn.name
-                  if fn and fn.arguments: acc_tool_calls[i]["arguments"] += fn.arguments
+          # Accumulate for tool calls.
+          if delta.tool_calls:
+            for tc in delta.tool_calls:
+              i = tc.index
+              if i not in acc_tool_calls: acc_tool_calls[i] = {"id": "", "name": "", "arguments": ""}
+              if tc.id: acc_tool_calls[i]["id"] = tc.id
+              fn = tc.function
+              if fn and fn.name: acc_tool_calls[i]["name"] = fn.name
+              if fn and fn.arguments: acc_tool_calls[i]["arguments"] += fn.arguments
 
-            # Flush remaining buffers before tool dispatch or finish.
-            async for ev in _emit(r_buf, "reasoning"): yield ev
-            async for ev in _emit(t_buf, "text"):      yield ev
+        # Flush remaining buffers before tool dispatch or finish.
+        async for ev in _emit(r_buf, "reasoning"): yield ev
+        async for ev in _emit(t_buf, "text"):      yield ev
 
-            if finish_reason == "length":
-              async for ev in _emit_json("error", {"message": "max_tokens reached; output truncated."}): yield ev
+        if finish_reason == "length":
+          async for ev in _emit_json("error", {"message": "max_tokens reached; output truncated."}): yield ev
 
-            # llama.cpp may report "stop" even when tool calls were parsed, so key on the calls themselves.
-            if acc_tool_calls and finish_reason != "length":
-              for tc in acc_tool_calls.values():
-                if not tc["id"]: tc["id"] = f"call_{uuid.uuid4().hex[:12]}"
-              # Append the assistant's tool_call message to keep history valid.
-              messages.append({"role": "assistant", "content": "", "tool_calls": [
-                {"id": tc["id"], "type": "function",
-                  "function": {"name": tc["name"], "arguments": tc["arguments"]}
-                } for tc in acc_tool_calls.values()
-              ]})
-              tool_msgs: dict = {}  # keyed by call index: results must be appended in CALL order,
-              valid_tcs = []        # because Qwen-style templates pair tool results to calls by position, not id.
-              for idx, tc in acc_tool_calls.items():
-                try: args = json.loads(tc["arguments"]) if tc["arguments"].strip() else {}
-                except json.JSONDecodeError: args = None
+        # llama.cpp may report "stop" even when tool calls were parsed, so key on the calls themselves.
+        if acc_tool_calls and finish_reason != "length":
+          for tc in acc_tool_calls.values():
+            if not tc["id"]: tc["id"] = f"call_{uuid.uuid4().hex[:12]}"
+          # Append the assistant's tool_call message to keep history valid.
+          messages.append({"role": "assistant", "content": "", "tool_calls": [
+            {"id": tc["id"], "type": "function",
+              "function": {"name": tc["name"], "arguments": tc["arguments"]}
+            } for tc in acc_tool_calls.values()
+          ]})
+          tool_msgs: dict = {}  # keyed by call index: results must be appended in CALL order,
+          valid_tcs = []        # because Qwen-style templates pair tool results to calls by position, not id.
+          for idx, tc in acc_tool_calls.items():
+            try: args = json.loads(tc["arguments"]) if tc["arguments"].strip() else {}
+            except json.JSONDecodeError: args = None
 
-                # Check for tool call hallucination and tell the model it is hallucinating.
-                error = None
-                if not isinstance(args, dict):
-                  error, args = "arguments were not valid JSON.", {}
-                elif tc["name"] not in {t["function"]["name"] for t in TOOLS}:
-                  error = f"unknown tool '{tc['name']}'."
-                elif tc["name"] == "web_fetch":
-                  if not args.get("urls") or not args.get("objective"):
-                    error = "web_fetch requires 'urls' (list of string) AND 'objective' (string). Got empty arguments."
-                elif tc["name"] == "web_search":
-                  if not args.get("search_queries") or not args.get("objective"):
-                    error = "web_search requires 'search_queries' (list of string) AND 'objective' (string). Got empty arguments."
+            # Check for tool call hallucination and tell the model it is hallucinating.
+            error = None
+            if not isinstance(args, dict):
+              error, args = "arguments were not valid JSON.", {}
+            elif tc["name"] not in {t["function"]["name"] for t in TOOLS}:
+              error = f"unknown tool '{tc['name']}'."
+            elif tc["name"] == "web_fetch":
+              if not args.get("urls") or not args.get("objective"):
+                error = "web_fetch requires 'urls' (list of string) AND 'objective' (string). Got empty arguments."
+            elif tc["name"] == "web_search":
+              if not args.get("search_queries") or not args.get("objective"):
+                error = "web_search requires 'search_queries' (list of string) AND 'objective' (string). Got empty arguments."
 
-                # Notify client. Strip bulky fields for artifact tools; content arrives via the "artifact" event.
-                shown = ({k: v for k, v in args.items() if k in ("id", "title", "type", "language")}
-                  if tc["name"] in ARTIFACT_TOOL_NAMES else args)
-                async for ev in _emit_json("tool_call", {"name": tc["name"], "arguments": shown}): yield ev
+            # Notify client. Strip bulky fields for artifact tools; content arrives via the "artifact" event.
+            shown = ({k: v for k, v in args.items() if k in ("id", "title", "type", "language")}
+              if tc["name"] in ARTIFACT_TOOL_NAMES else args)
+            async for ev in _emit_json("tool_call", {"name": tc["name"], "arguments": shown}): yield ev
 
-                if error:
-                  print(f"[tool_error] {tc['name']} bad args: {args}", flush=True)
-                  tool_msgs[idx] = {"role": "tool", "tool_call_id": tc["id"], "content": f"Error: {error}"}
-                elif tc["name"] in ARTIFACT_TOOL_NAMES:
-                  # Local + cheap + order-dependent: run sequentially, in call order.
-                  result, snap = artifact_exec(tc["name"], args, artifacts)
-                  tool_msgs[idx] = {"role": "tool", "tool_call_id": tc["id"], "content": result}
-                  if snap:
-                    async for ev in _emit_json("artifact", snap): yield ev
-                else:
-                  valid_tcs.append((idx, tc))  # only gather valid ones.
-
-              # Web tools run in parallel, outside the loop. NOT for artifacts.
-              async def run_one(tc):
-                try: content = await asyncio.to_thread(run_rust_binary, json.dumps(tc))
-                except RuntimeError as e: content = json.dumps({"error": str(e)})
-                return {"role": "tool", "tool_call_id": tc["id"], "content": compact_context(content, tc['name'])}
-
-              if valid_tcs:
-                results = await asyncio.gather(*[run_one(tc) for _, tc in valid_tcs])
-                for (idx, _), res in zip(valid_tcs, results): tool_msgs[idx] = res
-              messages.extend(tool_msgs[i] for i in sorted(tool_msgs))
+            if error:
+              print(f"[tool_error] {tc['name']} bad args: {args}", flush=True)
+              tool_msgs[idx] = {"role": "tool", "tool_call_id": tc["id"], "content": f"Error: {error}"}
+            elif tc["name"] in ARTIFACT_TOOL_NAMES:
+              # Local + cheap + order-dependent: run sequentially, in call order.
+              result, snap = artifact_exec(tc["name"], args, artifacts)
+              tool_msgs[idx] = {"role": "tool", "tool_call_id": tc["id"], "content": result}
+              if snap:
+                async for ev in _emit_json("artifact", snap): yield ev
             else:
-              elapsed = time.monotonic() - loop_start
-              # NOTE: tool-call rounds re-send the growing history, so prompt tokens are cumulative across
-              # rounds. That's accurate: it reflects what was actually processed.
-              usage = {'type': 'usage', 'prompt_tokens': tot_prompt_toks,
-                'completion_tokens': tot_compl_toks, 'total_tokens': tot_prompt_toks + tot_compl_toks,
-                'elapsed_s': round(elapsed, 1),
-                'tps': round(tot_compl_toks / elapsed, 1) if elapsed else 0}
-              yield f"data: {json.dumps(usage)}\n\n"
-              yield "data: [DONE]\n\n"
-              break
-        return StreamingResponse(generate(), media_type="text/event-stream")
-      return await _guarded(_)
+              valid_tcs.append((idx, tc))  # only gather valid ones.
+
+          # Web tools run in parallel, outside the loop. NOT for artifacts.
+          async def run_one(tc):
+            try: content = await asyncio.to_thread(run_rust_binary, json.dumps(tc))
+            except RuntimeError as e: content = json.dumps({"error": str(e)})
+            return {"role": "tool", "tool_call_id": tc["id"], "content": compact_context(content, tc['name'])}
+
+          if valid_tcs:
+            results = await asyncio.gather(*[run_one(tc) for _, tc in valid_tcs])
+            for (idx, _), res in zip(valid_tcs, results): tool_msgs[idx] = res
+          messages.extend(tool_msgs[i] for i in sorted(tool_msgs))
+        else:
+          elapsed = time.monotonic() - loop_start
+          # NOTE: tool-call rounds re-send the growing history, so prompt tokens are cumulative across
+          # rounds. That's accurate: it reflects what was actually processed.
+          usage = {'type': 'usage', 'prompt_tokens': tot_prompt_toks,
+            'completion_tokens': tot_compl_toks, 'total_tokens': tot_prompt_toks + tot_compl_toks,
+            'elapsed_s': round(elapsed, 1),
+            'tps': round(tot_compl_toks / elapsed, 1) if elapsed else 0}
+          yield f"data: {json.dumps(usage)}\n\n"
+          yield "data: [DONE]\n\n"
+          break
+    return StreamingResponse(with_keepalive(generate()), media_type="text/event-stream")
+  return await _guarded(_)
 
 # =================================================================
 # Tools (web_search and web_fetch using rust binaries baked into image.)
