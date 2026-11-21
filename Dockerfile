@@ -8,7 +8,7 @@ ARG REPO
 ARG REF
 ARG JOBS=8
 ARG CUDA_ARCHS="86;89;120"
-ARG CMAKE_EXTRA="-DLLAMA_BUILD_UI=OFF -DLLAMA_USE_PREBUILT_UI=OFF"   # No need Web UI. Cause errors.
+ARG CMAKE_EXTRA="-DLLAMA_BUILD_UI=OFF -DLLAMA_USE_PREBUILT_UI=OFF -DLLAMA_BUILD_WEBUI=OFF"   # No need Web UI. Cause errors.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git cmake build-essential ca-certificates libssl-dev libcurl4-openssl-dev \
  && rm -rf /var/lib/apt/lists/*
@@ -16,7 +16,7 @@ RUN test -n "$REPO" && test -n "$REF" \
  && git clone "$REPO" /src && git -C /src checkout "$REF"
 WORKDIR /src
 # Remove any stale UI dist so the OFF flags are actually respected.
-RUN rm -rf tools/ui/dist build/tools/ui/dist
+RRUN rm -rf build tools/ui/dist
 # Explicit archs (no GPU to autodetect). NATIVE=OFF so the CPU code runs on any node.
 RUN cmake -B build -DGGML_CUDA=ON -DGGML_NATIVE=OFF -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_CUDA_ARCHITECTURES="${CUDA_ARCHS}" ${CMAKE_EXTRA} \
