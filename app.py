@@ -176,12 +176,13 @@ async def _run_mlkem(*args: str, input_data: Optional[str] = None) -> dict:
 #     return body['dk'], body['cek']
 
 @api.post('/v1/handshake')
-async def handshake(request: dict):
+async def handshake(request: dict, x_session_id: Optional[str] = Header(default='default')):
     client_ek = request.get('ek')
     if not client_ek: raise HTTPException(400, "Missing 'ek'")
     keygen = await _run_mlkem('keygen')
     now = time.time()
     for k in [k for k, v in SESSIONS.items() if now - v['ts'] > SESSION_TTL]: del SESSIONS[k]
+    SESSIONS[x_session_id] = {'dk': keygen['dk'], 'client_ek': client_ek, 'ts': now}
     return {'ek': keygen['ek']}
 
 async def with_keepalive(agen, interval: float = 15):
