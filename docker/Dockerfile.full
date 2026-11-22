@@ -59,7 +59,8 @@ RUN mkdir -p /opt/Bonsai-demo/bin && ln -s /opt/llama/bin /opt/Bonsai-demo/bin/c
 RUN if ldd /opt/llama/bin/llama-server | grep 'not found' | grep -v libcuda; then echo MISSING LIBS; exit 1; fi
 
 WORKDIR /app
-COPY args.xyz /app/args.xyz
-COPY entrypoint.sh app.py /app/
+# COPY args.xyz /app/args.xyz
+# COPY entrypoint.sh app.py /app/
+COPY args.xyz entrypoint.sh app.py /app/
 RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]

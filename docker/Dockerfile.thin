@@ -1,0 +1,4 @@
+ARG BASE
+FROM ${BASE}
+COPY args.xyz entrypoint.sh app.py /app/
+RUN chmod +x /app/entrypoint.sh

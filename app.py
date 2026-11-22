@@ -1,7 +1,7 @@
 import asyncio, base64, difflib, glob, json, os, signal, subprocess, time, uuid
 import httpx
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
 from typing import Optional
@@ -120,8 +120,10 @@ REASONING_EFFORTS = ("medium", "xhigh")  # "low" is unsupported by the model (be
 PORT = int(os.environ.get('PORT', '8081'))
 MODEL_NAME = 'bonsai-2-27b'
 MLKEM_PATH = '/usr/local/bin/mlkem-generator'
-MASTER = base64.b64decode(os.environ['HS_MASTER_KEY'])   # 32 bytes, identical on every replica
-TOKEN_TTL = 15 * 60
+# MASTER = base64.b64decode(os.environ['HS_MASTER_KEY'])   # 32 bytes, identical on every replica
+# TOKEN_TTL = 15 * 60
+SESSIONS: dict = {}  # sid -> {'dk', 'client_ek', 'ts'}; lives only in this process
+SESSION_TTL = 15 * 60  # timeout
 ACTIVE = 0    # in-flight chats; keeps /health stable during a long prefill
 
 api = FastAPI()
@@ -159,26 +161,28 @@ async def _run_mlkem(*args: str, input_data: Optional[str] = None) -> dict:
   try: return json.loads(proc.stdout)
   except json.JSONDecodeError: raise HTTPException(500, "Invalid JSON from mlkem")
 
-def _seal(dk: str, client_ek: str) -> str:
-    nonce = os.urandom(12)
-    body = json.dumps({'dk': dk, 'cek': client_ek, 'exp': int(time.time()) + TOKEN_TTL}).encode()
-    return base64.b64encode(nonce + ChaCha20Poly1305(MASTER).encrypt(nonce, body, None)).decode()
+# def _seal(dk: str, client_ek: str) -> str:
+#     nonce = os.urandom(12)
+#     body = json.dumps({'dk': dk, 'cek': client_ek, 'exp': int(time.time()) + TOKEN_TTL}).encode()
+#     return base64.b64encode(nonce + ChaCha20Poly1305(MASTER).encrypt(nonce, body, None)).decode()
 
-def _open(token: str):
-    try:
-        raw = base64.b64decode(token)
-        body = json.loads(ChaCha20Poly1305(MASTER).decrypt(raw[:12], raw[12:], None))
-    except Exception:
-        raise HTTPException(400, 'bad handshake token')
-    if body['exp'] < time.time(): raise HTTPException(400, 'handshake token expired')
-    return body['dk'], body['cek']
+# def _open(token: str):
+#     try:
+#         raw = base64.b64decode(token)
+#         body = json.loads(ChaCha20Poly1305(MASTER).decrypt(raw[:12], raw[12:], None))
+#     except Exception:
+#         raise HTTPException(400, 'bad handshake token')
+#     if body['exp'] < time.time(): raise HTTPException(400, 'handshake token expired')
+#     return body['dk'], body['cek']
 
 @api.post('/v1/handshake')
 async def handshake(request: dict):
     client_ek = request.get('ek')
     if not client_ek: raise HTTPException(400, "Missing 'ek'")
     keygen = await _run_mlkem('keygen')
-    return {'ek': keygen['ek'], 'token': _seal(keygen['dk'], client_ek)}
+    now = time.time()
+    for k in [k for k, v in SESSIONS.items() if now - v['ts'] > SESSION_TTL]: del SESSIONS[k]
+    return {'ek': keygen['ek']}
 
 async def with_keepalive(agen, interval: float = 15):
     global ACTIVE
@@ -208,9 +212,12 @@ async def with_keepalive(agen, interval: float = 15):
 async def chat(request: dict):
   async def _():
     if not await _llama_ready(): raise HTTPException(503, "model loading")
-    token = request.get("token")
-    if not token: raise HTTPException(400, "Missing token")
-    server_dk, client_ek = _open(token)
+    # token = request.get("token")
+    # if not token: raise HTTPException(400, "Missing token")
+    # server_dk, client_ek = _open(token)
+    session = SESSIONS.pop(x_session_id, None)  # Single use. 
+    if not session: raise HTTPException(400, "No handshake found. Call /v1/handshake first.")
+    server_dk, client_ek = session['dk'], session['client_ek']
 
     ct = request.get("ct")
     em = request.get("em")
@@ -565,3 +572,17 @@ def artifact_exec(name: str, args: dict, artifacts: dict):
   snap = {"id": aid, **{k: a[k] for k in ("title", "type", "language", "version", "content") if k in a},
     "change": {"find": find, "replace": replace, "replace_all": replace_all}}
   return json.dumps(result), snap
+
+if __name__ == '__main__':
+  import socket, uvicorn
+  socks = []
+  for fam, addr in ((socket.AF_INET, '0.0.0.0'), (socket.AF_INET6, '::')):
+    try:
+      s = socket.socket(fam, socket.SOCK_STREAM)
+      s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+      if fam == socket.AF_INET6: s.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+      s.bind((addr, 8000))
+      socks.append(s)
+    except OSError as e: print(f'[bind] {addr} skipped: {e}', flush=True)
+  if not socks: raise SystemExit('no listen socket')
+  uvicorn.Server(uvicorn.Config(api, log_level='info')).run(sockets=socks)
