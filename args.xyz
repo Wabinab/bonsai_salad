@@ -1,1 +1,1 @@
--m /models/model.gguf -md /models/drafter.gguf --no-mmproj -ngl 999 -c 262144 -fa on -ctk xyzkv2 -ctv xyzkv2 -ctkd q4_0 -ctvd q4_0 --spec-type draft-xyz --spec-draft-n-max 4 --spec-coupled --spec-rejection --parallel 1 --alias bonsai-2-27b --jinja --host 127.0.0.1 --port 8081
+-m /models/model.gguf -md /models/drafter.gguf --mmproj -ngl 999 -c 262144 -fa on -ctk xyzkv2 -ctv xyzkv2 -ctkd q4_0 -ctvd q4_0 --spec-type draft-xyz --spec-draft-n-max 4 --spec-coupled --spec-rejection --parallel 1 --alias bonsai-2-27b --jinja --host 127.0.0.1 --port 8081

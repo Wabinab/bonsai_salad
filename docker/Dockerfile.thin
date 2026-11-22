@@ -1,4 +1,6 @@
 ARG BASE
 FROM ${BASE}
+RUN curl -fL --retry 5 -o /models/mmproj.gguf \
+    https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf/resolve/main/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf
 COPY args.xyz entrypoint.sh app.py /app/
 RUN chmod +x /app/entrypoint.sh
