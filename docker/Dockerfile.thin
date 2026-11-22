@@ -1,6 +1,9 @@
 ARG BASE
 FROM ${BASE}
-RUN curl -fL --retry 5 -o /models/mmproj.gguf \
-    https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf/resolve/main/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf
+# Projector: empty = none (xyz), or a filename from the HF repo (plain)
+ARG MMPROJ_FILE=""
+RUN if [ -n "$MMPROJ_FILE" ]; then curl -fL --retry 5 -o /models/mmproj.gguf \
+    https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf/resolve/main/${MMPROJ_FILE}; fi
+ENV BONSAI_MMPROJ=${MMPROJ_FILE:+/models/mmproj.gguf}
 COPY args.xyz entrypoint.sh app.py /app/
 RUN chmod +x /app/entrypoint.sh
