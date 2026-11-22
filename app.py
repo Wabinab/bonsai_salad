@@ -210,7 +210,7 @@ async def with_keepalive(agen, interval: float = 15):
         task.cancel()   # client gone: upstream stream closes, llama-server aborts and frees the slot
 
 @api.post("/chat")
-async def chat(request: dict):
+async def chat(request: dict, x_session_id: Optional[str] = Header(default='default')):
   async def _():
     if not await _llama_ready(): raise HTTPException(503, "model loading")
     # token = request.get("token")
