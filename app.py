@@ -188,6 +188,7 @@ async def handshake(request: dict, x_session_id: Optional[str] = Header(default=
 async def with_keepalive(agen, interval: float = 15):
     global ACTIVE
     ACTIVE += 1
+    t0 = time.monotonic(); sent = 0; why = 'finished normally'        # added
     q: asyncio.Queue = asyncio.Queue()
     END = object()
     async def pump():
@@ -204,10 +205,16 @@ async def with_keepalive(agen, interval: float = 15):
                 yield 'data: {"type":"ping"}\n\n'; continue
             if item is END: break
             if isinstance(item, Exception): raise item
+            sent += 1                                                  # added
             yield item
+    except (asyncio.CancelledError, GeneratorExit):                    # added
+        why = 'CLIENT DISCONNECTED'; raise
+    except Exception as e:                                             # added
+        why = f'ERROR {e!r}'; raise
     finally:
         ACTIVE -= 1
         task.cancel()   # client gone: upstream stream closes, llama-server aborts and frees the slot
+        print(f'[stream end] {why} after {time.monotonic() - t0:.1f}s, {sent} chunks', flush=True)   # added
 
 @api.post("/chat")
 async def chat(request: dict, x_session_id: Optional[str] = Header(default='default')):
