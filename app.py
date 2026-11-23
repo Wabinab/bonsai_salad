@@ -1,6 +1,6 @@
 import asyncio, base64, difflib, glob, json, os, signal, subprocess, time, uuid
 import httpx
-from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+# from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
@@ -126,30 +126,161 @@ SESSIONS: dict = {}  # sid -> {'dk', 'client_ek', 'ts'}; lives only in this proc
 SESSION_TTL = 15 * 60  # timeout
 ACTIVE = 0    # in-flight chats; keeps /health stable during a long prefill
 
+# ---------------- [SALAD_BROKEN_STREAM] cut-recovery helpers ----------------
+# Tool results keyed by the tool_call id we send to the client. A resumed request carries the
+# tool_calls (with ids) but not the results; we fill them in from here. In-memory only: a
+# container restart empties it, and then the model is told the result is gone.
+TOOL_RESULTS: dict = {}           # id -> {'name', 'content', 'ts'}
+TOOL_RESULTS_MAX = 200
+TOOL_RESULTS_TTL = 2 * 60 * 60
+
+def _tool_results_prune():
+  """Even though one believe no need TTL because my model seldom calls results so it won't stash too much of them
+  in RAM, but anyways, since the AI already does it, then one'll let it be."""
+  now = time.time()
+  for k in [k for k, v in TOOL_RESULTS.items() if now - v['ts'] > TOOL_RESULTS_TTL]: TOOL_RESULTS.pop(k, None)
+  while len(TOOL_RESULTS) > TOOL_RESULTS_MAX: TOOL_RESULTS.pop(next(iter(TOOL_RESULTS)), None)
+
+async def _fill_tool_results(messages: list) -> list:
+  '''A resumed request carries assistant message(s) with tool_calls but no tool results. Insert a tool
+  message for every tool_call that has none. Normal history never carries tool_calls, so for ordinary
+  chats this is a no-op. Never re-runs a tool: a lost result becomes an explicit message.'''
+  _tool_results_prune()
+  out = []
+  for i, m in enumerate(messages):
+    out.append(m)
+    if not (isinstance(m, dict) and m.get('role') == 'assistant' and m.get('tool_calls')): continue
+    have, j = set(), i + 1
+    while j < len(messages) and isinstance(messages[j], dict) and messages[j].get('role') == 'tool':
+      have.add(messages[j].get('tool_call_id')); j += 1
+    for tc in m['tool_calls']:
+      fn = (tc or {}).get('function') or {}
+      tid, name = (tc or {}).get('id') or '', fn.get('name') or ''
+      if not tid or tid in have: continue
+      stored = TOOL_RESULTS.get(tid)
+      nm = name or 'tool'
+      if stored is not None: content = stored['content']
+      elif name in ARTIFACT_TOOL_NAMES:   # already applied before the cut; the client re-attaches the live artifacts
+        content = json.dumps({'ok': True, 'note': 'already applied before the connection broke; the current artifact state is attached above.'})
+      else: content = f'Error: the result of this {nm} call was lost when the connection broke. Call the tool again if you still need it.'
+      print(f'[resume] filled tool result {nm} {tid} (stored={stored is not None})', flush=True)
+      out.append({'role': 'tool', 'tool_call_id': tid, 'content': content})
+  return out
+
+def _nc(c: str) -> str:
+  l = c.lower()
+  return l if len(l) == 1 else c
+
+def _norm_idx(s: str) -> list:
+  '''[(lowercased alnum char, index in s)]: punctuation, whitespace and quote-style differences vanish.'''
+  return [(_nc(c), i) for i, c in enumerate(s) if c.isalnum()]
+
+class _EchoStrip:
+  '''llama-server echoes the text we sent as a trailing assistant message at the start of the new stream
+  (observed on plain and xyz: the whole sent text plus the first new word arrive in ONE delta). Drop the
+  echoed part and keep everything after it, including that first new word, so the client just appends
+  the continuation. If the start does not match, emit everything (duplicated text, never lost text).'''
+  def __init__(self, sent: str):
+    idx = _norm_idx(sent)
+    self.ref = ''.join(c for c, _ in idx)
+    self.tail = (len(sent) - (idx[-1][1] + 1)) if idx else 0   # trailing non-alnum chars we sent
+    self.buf, self.got = '', ''
+    self.done = not self.ref
+
+  def feed(self, text: str) -> str:
+    if self.done: return text
+    self.buf += text
+    self.got += ''.join(_nc(c) for c in text if c.isalnum())
+    n = len(self.ref)
+    if len(self.got) < n:
+      return '' if self.ref.startswith(self.got) else self._give_up()   # still consistent with an echo: keep holding
+    if self.got[:n] != self.ref: return self._give_up()
+    nb = _norm_idx(self.buf)
+    j, k = nb[n - 1][1] + 1, 0                      # index just after the last echoed letter or digit
+    while j < len(self.buf) and k < self.tail and not self.buf[j].isalnum(): j += 1; k += 1   # echoed trailing punctuation/space
+    out, self.buf, self.done = self.buf[j:], '', True
+    return out
+
+  def _give_up(self) -> str:
+    print('[echo] no/different echo: emitting text as is', flush=True)
+    out, self.buf, self.done = self.buf, '', True
+    return out
+
+  def flush(self) -> str:
+    # out, self.buf, self.done = self.buf, '', True
+    held_echo = (not self.done) and self.ref.startswith(self.got)   # everything held so far is still pure echo
+    out, self.buf, self.done = ('' if held_echo else self.buf), '', True
+    return out
+# ---------------- end [SALAD_BROKEN_STREAM] ----------------
+
 api = FastAPI()
 client = AsyncOpenAI(base_url=f'http://127.0.0.1:{PORT}/v1', api_key='None')
 
 async def _llama_ready() -> bool:
-    try:
-        async with httpx.AsyncClient(timeout=2) as c:
-            return (await c.get(f'http://127.0.0.1:{PORT}/health')).status_code == 200
-    except Exception:
-        return False
+  try:
+    async with httpx.AsyncClient(timeout=2) as c:
+      return (await c.get(f'http://127.0.0.1:{PORT}/health')).status_code == 200
+  except Exception:
+    return False
 
 @api.get('/live')       # liveness: only proves the Python process is alive
 async def live(): return {'status': 'ok'}
 
 @api.get('/health')     # startup + readiness; frontend checks status == 'ok'
 async def health():
-    if ACTIVE == 0 and not await _llama_ready(): raise HTTPException(503, 'model loading')
-    return {'status': 'ok', 'models': [MODEL_NAME]}
+  if ACTIVE == 0 and not await _llama_ready(): raise HTTPException(503, 'model loading')
+  return {'status': 'ok', 'models': [MODEL_NAME]}
+
+@api.get('/slowtest')
+async def slowtest(secs: int = 900, gap: float = 0.5, pad: int = 1000):
+  """It's unsure whether SSE disconnect due to Salad or due to llama.cpp, so this is a test for it.
+  Run by curl -N -sS --http1.1 -w '\nhttp=%{http_code} total=%{time_total}s exit=%{exitcode} err=%{errormsg}\n' \
+  "https://YOUR-DOMAIN/slowtest?secs=600" | tail -n 3 """
+  secs = min(secs, 1800)
+  async def gen():
+    t0 = time.monotonic(); i = 0; why = 'finished'
+    try:
+      while time.monotonic() - t0 < secs:
+        yield f'data: {{"type":"ping","i":{i},"t":{time.monotonic() - t0:.1f},"pad":"{"x" * pad}"}}\n\n'
+        i += 1
+        await asyncio.sleep(gap)
+    except (asyncio.CancelledError, GeneratorExit): why = 'CLIENT DISCONNECTED'; raise
+    finally: print(f'[slowtest end] {why} after {time.monotonic() - t0:.1f}s, {i} frames', flush=True)
+  return StreamingResponse(gen(), media_type='text/event-stream',
+                          headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
+
+@api.post('/slowpost')
+async def slowpost(request: dict, silent: int = 150, secs: int = 600, gap: float = 0.5):
+  """Test if SSE broken caused by big body (history always send back to backend rather than saved in backend).
+  Usage (AI say 300KB, but one don't know how much it has, some thousands of lines of code and around 57k tokens
+  as counted by my local tiktoken): 
+  ```bash
+  python3 -c "import json;print(json.dumps({'junk':'x'*300000}))" > body.json
+  curl -N -sS --http1.1 -X POST -H 'Content-Type: application/json' --data-binary @body.json \
+    "https://YOUR-DOMAIN/slowpost?silent=150&secs=600" | tail -n 3
+  ```
+  Will be removed in the future. 
+  """
+  async def gen():
+    t0 = time.monotonic(); i = 0; why = 'finished'
+    try:
+      while time.monotonic() - t0 < silent:        # emulates prefill: pings only
+        yield 'data: {"type":"ping"}\n\n'
+        await asyncio.sleep(15)
+      while time.monotonic() - t0 < silent + secs:  # emulates decode
+        yield f'data: {{"type":"ping","i":{i}}}\n\n'
+        i += 1
+        await asyncio.sleep(gap)
+    except (asyncio.CancelledError, GeneratorExit): why = 'CLIENT DISCONNECTED'; raise
+    finally: print(f'[slowpost end] {why} after {time.monotonic() - t0:.1f}s, {i} frames', flush=True)
+  return StreamingResponse(gen(), media_type='text/event-stream')
 
 async def _guarded(action):   # no os.kill any more; entrypoint.sh handles crashes
-    try: return await action()
-    except HTTPException: raise
-    except Exception as e:
-        print(f'[error] {e!r}', flush=True)
-        raise HTTPException(502, 'backend error')
+  try: return await action()
+  except HTTPException: raise
+  except Exception as e:
+    print(f'[error] {e!r}', flush=True)
+    raise HTTPException(502, 'backend error')
 
 async def _run_mlkem(*args: str, input_data: Optional[str] = None) -> dict:
   proc = await asyncio.to_thread(subprocess.run, [MLKEM_PATH, *args],
@@ -177,44 +308,41 @@ async def _run_mlkem(*args: str, input_data: Optional[str] = None) -> dict:
 
 @api.post('/v1/handshake')
 async def handshake(request: dict, x_session_id: Optional[str] = Header(default='default')):
-    client_ek = request.get('ek')
-    if not client_ek: raise HTTPException(400, "Missing 'ek'")
-    keygen = await _run_mlkem('keygen')
-    now = time.time()
-    for k in [k for k, v in SESSIONS.items() if now - v['ts'] > SESSION_TTL]: del SESSIONS[k]
-    SESSIONS[x_session_id] = {'dk': keygen['dk'], 'client_ek': client_ek, 'ts': now}
-    return {'ek': keygen['ek']}
+  client_ek = request.get('ek')
+  if not client_ek: raise HTTPException(400, "Missing 'ek'")
+  keygen = await _run_mlkem('keygen')
+  now = time.time()
+  for k in [k for k, v in SESSIONS.items() if now - v['ts'] > SESSION_TTL]: del SESSIONS[k]
+  SESSIONS[x_session_id] = {'dk': keygen['dk'], 'client_ek': client_ek, 'ts': now}
+  return {'ek': keygen['ek']}
 
-async def with_keepalive(agen, interval: float = 15):
-    global ACTIVE
-    ACTIVE += 1
-    t0 = time.monotonic(); sent = 0; why = 'finished normally'        # added
-    q: asyncio.Queue = asyncio.Queue()
-    END = object()
-    async def pump():
-        try:
-            async for item in agen: await q.put(item)
-        except Exception as e: await q.put(e)
-        finally: await q.put(END)
-    task = asyncio.create_task(pump())
-    try:
-        yield 'data: {"type":"ping"}\n\n'      # first byte immediately, before prefill
-        while True:
-            try: item = await asyncio.wait_for(q.get(), interval)
-            except asyncio.TimeoutError:
-                yield 'data: {"type":"ping"}\n\n'; continue
-            if item is END: break
-            if isinstance(item, Exception): raise item
-            sent += 1                                                  # added
-            yield item
-    except (asyncio.CancelledError, GeneratorExit):                    # added
-        why = 'CLIENT DISCONNECTED'; raise
-    except Exception as e:                                             # added
-        why = f'ERROR {e!r}'; raise
-    finally:
-        ACTIVE -= 1
-        task.cancel()   # client gone: upstream stream closes, llama-server aborts and frees the slot
-        print(f'[stream end] {why} after {time.monotonic() - t0:.1f}s, {sent} chunks', flush=True)   # added
+async def with_keepalive(agen, interval: float = 5):
+  global ACTIVE
+  ACTIVE += 1
+  t0 = time.monotonic(); sent = 0; why = 'finished normally'        
+  q: asyncio.Queue = asyncio.Queue()
+  END = object()
+  async def pump():
+    try: 
+      async for item in agen: await q.put(item)
+    except Exception as e: await q.put(e)
+    finally: await q.put(END)
+  task = asyncio.create_task(pump())
+  try:
+    yield 'data: {"type":"ping"}\n\n'      # first byte immediately, before prefill
+    while True:
+      try: item = await asyncio.wait_for(q.get(), interval)
+      except asyncio.TimeoutError: yield 'data: {"type":"ping"}\n\n'; continue
+      if item is END: break
+      if isinstance(item, Exception): raise item
+      sent += 1                                                  
+      yield item
+  except (asyncio.CancelledError, GeneratorExit): why = 'CLIENT DISCONNECTED'; raise
+  except Exception as e: why = f'ERROR {e!r}'; raise
+  finally:
+    ACTIVE -= 1
+    task.cancel()   # client gone: upstream stream closes, llama-server aborts and frees the slot
+    print(f'[stream end] {why} after {time.monotonic() - t0:.1f}s, {sent} chunks', flush=True)   # added
 
 @api.post("/chat")
 async def chat(request: dict, x_session_id: Optional[str] = Header(default='default')):
@@ -245,6 +373,17 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
     artifacts = _norm_artifacts(raw_artifacts) if ENABLE_ARTIFACTS else {}
     if artifacts: messages = inject_artifacts(messages, artifacts)
 
+     # [SALAD_BROKEN_STREAM] resumed request: fill missing tool results, detect a trailing partial assistant message
+    try: messages = await _fill_tool_results(messages)   # failsafe: never fail the request over this
+    except Exception as e: print(f'[resume] tool fill failed, continuing without: {e!r}', flush=True)
+    echo_r = echo_c = ''
+    if messages and isinstance(messages[-1], dict) and messages[-1].get('role') == 'assistant' and not messages[-1].get('tool_calls'):
+      echo_r = messages[-1].get('reasoning_content') or ''
+      echo_c = messages[-1].get('content') or ''
+      if not isinstance(echo_r, str): echo_r = ''
+      if not isinstance(echo_c, str): echo_c = ''
+      print(f'[resume] continuing a partial assistant message: {len(echo_r)} reasoning chars, {len(echo_c)} content chars', flush=True)
+
     params = {**INFERENCE_DEFAULTS, **payload}  # payload overrides defaults.
     # vLLM/SGLang name -> llama.cpp name
     if "repetition_penalty" in params: params["repeat_penalty"] = params.pop("repetition_penalty")
@@ -263,6 +402,8 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
     async def generate():
       r_buf, t_buf = [], []
       first_sent = False
+      strip_r = _EchoStrip(echo_r) if echo_r else None   # [SALAD_BROKEN_STREAM]
+      strip_c = _EchoStrip(echo_c) if echo_c else None
 
       async def _emit_json(typ: str, obj: dict):
         nonlocal first_sent
@@ -308,15 +449,21 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
           # llama-server (deepseek-style reasoning format) uses reasoning_content.
           # `if raw:` (not raw.strip()) so newline-only deltas between paragraphs aren't dropped.
           raw = getattr(delta, 'reasoning_content', None) or getattr(delta, 'reasoning', None)
+          if raw and strip_r is not None: raw = strip_r.feed(raw)   # [SALAD_BROKEN_STREAM] drop the echoed copy of what we sent
           if raw:
             async for ev in _emit(t_buf, "text"): yield ev  # flush text if switching back.
             r_buf.append(raw)
             if len(r_buf) >= SEND_PER_BATCH:
               async for ev in _emit(r_buf, "reasoning"): yield ev
 
-          if delta.content:
+          dc = delta.content   # [SALAD_BROKEN_STREAM]
+          if dc and strip_r is not None and not strip_r.done:   # content started: nothing more will echo in reasoning
+            tail = strip_r.flush()
+            if tail: r_buf.append(tail)
+          if dc and strip_c is not None: dc = strip_c.feed(dc)
+          if dc:
             async for ev in _emit(r_buf, "reasoning"): yield ev  # flush reasoning on switch.
-            t_buf.append(delta.content)
+            t_buf.append(dc)
             if len(t_buf) >= SEND_PER_BATCH:
               async for ev in _emit(t_buf, "text"): yield ev
 
@@ -330,6 +477,13 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
               if fn and fn.name: acc_tool_calls[i]["name"] = fn.name
               if fn and fn.arguments: acc_tool_calls[i]["arguments"] += fn.arguments
 
+        if strip_r is not None:   # [SALAD_BROKEN_STREAM] the echo only exists on the first llama call
+          tail = strip_r.flush()
+          if tail: r_buf.append(tail)
+        if strip_c is not None:
+          tail = strip_c.flush()
+          if tail: t_buf.append(tail)
+        strip_r = strip_c = None
         # Flush remaining buffers before tool dispatch or finish.
         async for ev in _emit(r_buf, "reasoning"): yield ev
         async for ev in _emit(t_buf, "text"):      yield ev
@@ -369,7 +523,7 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
             # Notify client. Strip bulky fields for artifact tools; content arrives via the "artifact" event.
             shown = ({k: v for k, v in args.items() if k in ("id", "title", "type", "language")}
               if tc["name"] in ARTIFACT_TOOL_NAMES else args)
-            async for ev in _emit_json("tool_call", {"name": tc["name"], "arguments": shown}): yield ev
+            async for ev in _emit_json("tool_call", {"name": tc["name"], "arguments": shown, "id": tc["id"]}): yield ev   # [SALAD_BROKEN_STREAM]
 
             if error:
               print(f"[tool_error] {tc['name']} bad args: {args}", flush=True)
@@ -392,6 +546,9 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
           if valid_tcs:
             results = await asyncio.gather(*[run_one(tc) for _, tc in valid_tcs])
             for (idx, _), res in zip(valid_tcs, results): tool_msgs[idx] = res
+          _tool_results_prune()   # [SALAD_BROKEN_STREAM] remember results by tool_call id for cut recovery
+          for _i, _tc in acc_tool_calls.items():
+            if _i in tool_msgs: TOOL_RESULTS[_tc["id"]] = {"name": _tc["name"], "content": tool_msgs[_i]["content"], "ts": time.time()}
           messages.extend(tool_msgs[i] for i in sorted(tool_msgs))
         else:
           elapsed = time.monotonic() - loop_start
