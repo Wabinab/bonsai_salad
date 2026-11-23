@@ -1,0 +1,5 @@
+ARG BASE
+FROM ${BASE}
+RUN /venv/bin/pip install --no-cache-dir websockets
+COPY args.xyz entrypoint.sh app.py /app/
+RUN chmod +x /app/entrypoint.sh
