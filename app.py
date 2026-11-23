@@ -241,49 +241,52 @@ async def health():
   if ACTIVE == 0 and not await _llama_ready(): raise HTTPException(503, 'model loading')
   return {'status': 'ok', 'models': [MODEL_NAME]}
 
-@api.get('/slowtest')
-async def slowtest(secs: int = 900, gap: float = 0.5, pad: int = 1000):
-  """It's unsure whether SSE disconnect due to Salad or due to llama.cpp, so this is a test for it.
-  Run by curl -N -sS --http1.1 -w '\nhttp=%{http_code} total=%{time_total}s exit=%{exitcode} err=%{errormsg}\n' \
-  "https://YOUR-DOMAIN/slowtest?secs=600" | tail -n 3 """
-  secs = min(secs, 1800)
-  async def gen():
-    t0 = time.monotonic(); i = 0; why = 'finished'
-    try:
-      while time.monotonic() - t0 < secs:
-        yield f'data: {{"type":"ping","i":{i},"t":{time.monotonic() - t0:.1f},"pad":"{"x" * pad}"}}\n\n'
-        i += 1
-        await asyncio.sleep(gap)
-    except (asyncio.CancelledError, GeneratorExit): why = 'CLIENT DISCONNECTED'; raise
-    finally: print(f'[slowtest end] {why} after {time.monotonic() - t0:.1f}s, {i} frames', flush=True)
-  return StreamingResponse(gen(), media_type='text/event-stream',
-                          headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
+# The following 2 codes are available on 'slowtest-snapshot' branch. Please check out that branch. 
+# They're used to test for SSE disconnection happening on Salad. 
+# Commented out because attackers can attack them by calling them. 
+# @api.get('/slowtest')
+# async def slowtest(secs: int = 900, gap: float = 0.5, pad: int = 1000):
+#   """It's unsure whether SSE disconnect due to Salad or due to llama.cpp, so this is a test for it.
+#   Run by curl -N -sS --http1.1 -w '\nhttp=%{http_code} total=%{time_total}s exit=%{exitcode} err=%{errormsg}\n' \
+#   "https://YOUR-DOMAIN/slowtest?secs=600" | tail -n 3 """
+#   secs = min(secs, 1800)
+#   async def gen():
+#     t0 = time.monotonic(); i = 0; why = 'finished'
+#     try:
+#       while time.monotonic() - t0 < secs:
+#         yield f'data: {{"type":"ping","i":{i},"t":{time.monotonic() - t0:.1f},"pad":"{"x" * pad}"}}\n\n'
+#         i += 1
+#         await asyncio.sleep(gap)
+#     except (asyncio.CancelledError, GeneratorExit): why = 'CLIENT DISCONNECTED'; raise
+#     finally: print(f'[slowtest end] {why} after {time.monotonic() - t0:.1f}s, {i} frames', flush=True)
+#   return StreamingResponse(gen(), media_type='text/event-stream',
+#                           headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
 
-@api.post('/slowpost')
-async def slowpost(request: dict, silent: int = 150, secs: int = 600, gap: float = 0.5):
-  """Test if SSE broken caused by big body (history always send back to backend rather than saved in backend).
-  Usage (AI say 300KB, but one don't know how much it has, some thousands of lines of code and around 57k tokens
-  as counted by my local tiktoken): 
-  ```bash
-  python3 -c "import json;print(json.dumps({'junk':'x'*300000}))" > body.json
-  curl -N -sS --http1.1 -X POST -H 'Content-Type: application/json' --data-binary @body.json \
-    "https://YOUR-DOMAIN/slowpost?silent=150&secs=600" | tail -n 3
-  ```
-  Will be removed in the future. 
-  """
-  async def gen():
-    t0 = time.monotonic(); i = 0; why = 'finished'
-    try:
-      while time.monotonic() - t0 < silent:        # emulates prefill: pings only
-        yield 'data: {"type":"ping"}\n\n'
-        await asyncio.sleep(15)
-      while time.monotonic() - t0 < silent + secs:  # emulates decode
-        yield f'data: {{"type":"ping","i":{i}}}\n\n'
-        i += 1
-        await asyncio.sleep(gap)
-    except (asyncio.CancelledError, GeneratorExit): why = 'CLIENT DISCONNECTED'; raise
-    finally: print(f'[slowpost end] {why} after {time.monotonic() - t0:.1f}s, {i} frames', flush=True)
-  return StreamingResponse(gen(), media_type='text/event-stream')
+# @api.post('/slowpost')
+# async def slowpost(request: dict, silent: int = 150, secs: int = 600, gap: float = 0.5):
+#   """Test if SSE broken caused by big body (history always send back to backend rather than saved in backend).
+#   Usage (AI say 300KB, but one don't know how much it has, some thousands of lines of code and around 57k tokens
+#   as counted by my local tiktoken): 
+#   ```bash
+#   python3 -c "import json;print(json.dumps({'junk':'x'*300000}))" > body.json
+#   curl -N -sS --http1.1 -X POST -H 'Content-Type: application/json' --data-binary @body.json \
+#     "https://YOUR-DOMAIN/slowpost?silent=150&secs=600" | tail -n 3
+#   ```
+#   Will be removed in the future. 
+#   """
+#   async def gen():
+#     t0 = time.monotonic(); i = 0; why = 'finished'
+#     try:
+#       while time.monotonic() - t0 < silent:        # emulates prefill: pings only
+#         yield 'data: {"type":"ping"}\n\n'
+#         await asyncio.sleep(15)
+#       while time.monotonic() - t0 < silent + secs:  # emulates decode
+#         yield f'data: {{"type":"ping","i":{i}}}\n\n'
+#         i += 1
+#         await asyncio.sleep(gap)
+#     except (asyncio.CancelledError, GeneratorExit): why = 'CLIENT DISCONNECTED'; raise
+#     finally: print(f'[slowpost end] {why} after {time.monotonic() - t0:.1f}s, {i} frames', flush=True)
+#   return StreamingResponse(gen(), media_type='text/event-stream')
 
 async def _guarded(action):   # no os.kill any more; entrypoint.sh handles crashes
   try: return await action()
