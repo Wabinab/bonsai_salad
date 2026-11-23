@@ -143,20 +143,27 @@ def _tool_results_prune():
 
 async def _fill_tool_results(messages: list) -> list:
   '''A resumed request carries assistant message(s) with tool_calls but no tool results. Insert a tool
-  message for every tool_call that has none. Normal history never carries tool_calls, so for ordinary
-  chats this is a no-op. Never re-runs a tool: a lost result becomes an explicit message.'''
+  message for every tool_call that has none, re-emitting the whole block in CALL order (Qwen-style
+  templates pair tool results to calls by position, not id). Normal history never carries tool_calls,
+  so for ordinary chats this is a no-op. Never re-runs a tool: a lost result becomes an explicit message.'''
   _tool_results_prune()
   out = []
-  for i, m in enumerate(messages):
-    out.append(m)
+  i, n = 0, len(messages)
+  while i < n:
+    m = messages[i]; out.append(m); i += 1
     if not (isinstance(m, dict) and m.get('role') == 'assistant' and m.get('tool_calls')): continue
-    have, j = set(), i + 1
-    while j < len(messages) and isinstance(messages[j], dict) and messages[j].get('role') == 'tool':
-      have.add(messages[j].get('tool_call_id')); j += 1
-    for tc in m['tool_calls']:
+    j = i
+    while j < n and isinstance(messages[j], dict) and messages[j].get('role') == 'tool': j += 1
+    existing = {messages[k].get('tool_call_id'): messages[k] for k in range(i, j)}
+    tcs = m['tool_calls']
+    ids = [(tc or {}).get('id') or '' for tc in tcs]
+    if not any(t and t not in existing for t in ids): continue   # nothing to fill: block passes through as-is
+    block = []
+    for tc, tid in zip(tcs, ids):
+      if tid and tid in existing: block.append(existing[tid]); continue
+      if not tid: continue   # unkeyable call: nothing to attach (same as before)
       fn = (tc or {}).get('function') or {}
-      tid, name = (tc or {}).get('id') or '', fn.get('name') or ''
-      if not tid or tid in have: continue
+      name = fn.get('name') or ''
       stored = TOOL_RESULTS.get(tid)
       nm = name or 'tool'
       if stored is not None: content = stored['content']
@@ -164,7 +171,10 @@ async def _fill_tool_results(messages: list) -> list:
         content = json.dumps({'ok': True, 'note': 'already applied before the connection broke; the current artifact state is attached above.'})
       else: content = f'Error: the result of this {nm} call was lost when the connection broke. Call the tool again if you still need it.'
       print(f'[resume] filled tool result {nm} {tid} (stored={stored is not None})', flush=True)
-      out.append({'role': 'tool', 'tool_call_id': tid, 'content': content})
+      block.append({'role': 'tool', 'tool_call_id': tid, 'content': content})
+    out.extend(block)   # one tool message per call, in CALL order
+    out.extend(messages[k] for k in range(i, j) if messages[k].get('tool_call_id') not in set(ids))  # keep unrecognized extras
+    i = j
   return out
 
 def _nc(c: str) -> str:
@@ -323,7 +333,7 @@ async def with_keepalive(agen, interval: float = 5):
   q: asyncio.Queue = asyncio.Queue()
   END = object()
   async def pump():
-    try: 
+    try:
       async for item in agen: await q.put(item)
     except Exception as e: await q.put(e)
     finally: await q.put(END)
