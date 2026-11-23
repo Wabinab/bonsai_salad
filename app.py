@@ -1,7 +1,7 @@
 import asyncio, base64, difflib, glob, json, os, signal, subprocess, time, uuid
 import httpx
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, WebSocket
 from fastapi.responses import StreamingResponse
 from openai import AsyncOpenAI
 from typing import Optional
@@ -258,6 +258,18 @@ async def slowtest(secs: int = 900, gap: float = 0.5, pad: int = 1000):
     finally: print(f'[slowtest end] {why} after {time.monotonic() - t0:.1f}s, {i} frames', flush=True)
   return StreamingResponse(gen(), media_type='text/event-stream',
                           headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
+
+# Added websocket option. 
+@api.websocket('/slowws')
+async def slowws(ws: WebSocket, secs: int = 900, gap: float = 0.5):
+  await ws.accept()
+  t0 = time.monotonic(); i = 0; why = 'finished'
+  try:
+    while time.monotonic() - t0 < min(secs, 1800):
+      await ws.send_text(f'{{"i":{i},"t":{time.monotonic() - t0:.1f}}}'); i += 1
+      await asyncio.sleep(gap)
+  except Exception as e: why = f'DISCONNECT {type(e).__name__}'
+  finally: print(f'[slowws end] {why} after {time.monotonic() - t0:.1f}s, {i} frames', flush=True)
 
 @api.post('/slowpost')
 async def slowpost(request: dict, silent: int = 150, secs: int = 600, gap: float = 0.5):
