@@ -96,3 +96,11 @@ sudo apt install -y docker-buildx-plugin
 # Confirm it works
 docker buildx version
 ```
+
+## Upload to docker image repo
+```
+export GHCR_PAT=(github classic PAT)
+echo $GHCR_PAT | docker login ghcr.io -u wabinab --password-stdin
+docker push ghcr.io/wabinab/bonsai:xyz-0.1
+docker push ghcr.io/wabinab/bonsai:plain-0.1
+```
