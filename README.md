@@ -2,11 +2,11 @@
 TEST ONLY: hosting Ternary Bonsai v2 on SaladCloud. This is the compilation script to create the docker container.
 
 ```bash
-docker build -f docker/Dockerfile.thin \
+docker buildx build -f docker/Dockerfile.thin \
   --build-arg BASE=ghcr.io/wabinab/bonsai:xyz-0.1 \
   -t ghcr.io/wabinab/bonsai:xyz-0.5 .
 
-docker build -f docker/Dockerfile.thin \
+docker buildx build -f docker/Dockerfile.thin \
   --build-arg BASE=ghcr.io/wabinab/bonsai:plain-0.1 \
   --build-arg MMPROJ_FILE=Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf \
   -t ghcr.io/wabinab/bonsai:plain-0.5 .
@@ -62,3 +62,37 @@ JOBS=$(( $(nproc) / 2 ))   # (optional) For building .full only.
 Full build on 16 vCPU and 64 GB RAM is going to take about half an hour (at least) per image 
 from scratch (when there's nothing to reuse). vRAM usage is, the one I remember, more than 32GB. vCPU usage sometimes goes to full on all cores, other times full only on half of the cores. Storage will in the end use up around 110GB+. 
 
+## Buildx
+Usually they come with it, but if they don't, here it is (from manual installation). 
+
+"come with it" means I use a pre-installed docker image when creating my instance. 
+
+```bash
+# Install prerequisites and Docker's signing key
+sudo apt update
+sudo apt install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Remove the earlier incorrect source file
+sudo rm -f /etc/apt/sources.list.d/docker.sources
+
+# Add the Ubuntu repository; do not put a backslash before the $ in UBUNTU_CODENAME
+sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "\${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Architectures: $(dpkg --print-architecture)
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
+
+# Refresh package lists and install Buildx
+sudo apt update
+sudo apt install -y docker-buildx-plugin
+
+# Confirm it works
+docker buildx version
+```
