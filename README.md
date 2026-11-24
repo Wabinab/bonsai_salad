@@ -15,6 +15,20 @@ docker push ghcr.io/wabinab/bonsai:xyz-0.5
 docker push ghcr.io/wabinab/bonsai:plain-0.5
 ```
 
+## Build reference for PQ2 matrix
+
+```bash
+docker build -f docker/Dockerfile.full2 --build-arg REPO=https://github.com/PrismML-Eng/llama.cpp --build-arg REF=<your-pin> --build-arg VARIANT=xyz -t ghcr.io/wabinab/bonsai:xyz2-0.1 .
+docker build -f docker/Dockerfile.full2 --build-arg REPO=https://github.com/PrismML-Eng/llama.cpp --build-arg REF=<your-pin> --build-arg VARIANT=plain --build-arg MMPROJ_FILE=Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf -t ghcr.io/wabinab/bonsai:plain2-0.1 .
+```
+
+For further build on thin: 
+
+```bash
+docker build -f docker/Dockerfile.thin2 --build-arg BASE=ghcr.io/wabinab/bonsai:plain2-0.1 \
+  -t ghcr.io/wabinab/bonsai:plain2-0.2 .
+```
+
 ## Startup New Instance
 When startup a new instance, run these first: 
 

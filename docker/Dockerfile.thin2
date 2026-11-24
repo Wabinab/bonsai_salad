@@ -1,0 +1,7 @@
+ARG BASE
+FROM ${BASE}
+# Gen-2 thin overlay. Nothing projector-related here: the mmproj layer is decided
+# at base-build time by Dockerfile.full2 (--build-arg MMPROJ_FILE=...), so this
+# file stays thin and never swaps model layers in or out.
+COPY args.xyz entrypoint.sh app.py /app/
+RUN chmod +x /app/entrypoint.sh

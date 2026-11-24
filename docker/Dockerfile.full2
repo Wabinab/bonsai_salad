@@ -33,7 +33,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Layers go from least to most volatile. Model first, app code last.
 RUN mkdir /models && curl -fL --retry 5 --retry-delay 5 -o /models/model.gguf \
-    https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf/blob/main/Ternary-Bonsai-2-27B-PQ2_0.gguf
+    https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf/resolve/main/Ternary-Bonsai-2-27B-PQ2_0.gguf
+
+# Projector: empty = none (xyz), or a filename from the HF repo (plain).
+# ARGs are per-stage, so it must be redeclared here even though stage 1 never uses it.
+ARG MMPROJ_FILE=""
+RUN if [ -n "$MMPROJ_FILE" ]; then curl -fL --retry 5 -o /models/mmproj.gguf \
+https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf/resolve/main/${MMPROJ_FILE}; fi
+ENV BONSAI_MMPROJ=${MMPROJ_FILE:+/models/mmproj.gguf}
+ARG VARIANT=plain
 
 ARG VARIANT=plain
 RUN if [ "$VARIANT" = xyz ]; then curl -fL --retry 5 -o /models/drafter.gguf \
