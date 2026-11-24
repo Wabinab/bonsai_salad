@@ -1,4 +1,4 @@
-import asyncio, base64, difflib, glob, json, os, signal, subprocess, time, uuid
+import asyncio, base64, difflib, glob, json, os, signal, subprocess, re, time, uuid
 import httpx
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from fastapi import FastAPI, Header, HTTPException
@@ -223,6 +223,107 @@ class _EchoStrip:
     return out
 # ---------------- end [SALAD_BROKEN_STREAM] ----------------
 
+# ---------------- [RESUMABLE_STREAM] background generation + replay buffer ----------------
+GENS: dict = {}            # gen_id -> _Gen. RAM only: ciphertext frames, never prompts or history
+MAX_GENS = 8
+PING_EVERY = 5.0           # s of quiet before a connection-local ping (client stall timer is 10 s)
+ROTATE_AFTER = 110.0       # s; a tail ends cleanly before the gateway's ~180 s connection-age sweep
+CONSUMER_TTL = 120.0       # s with no listener: cancel the generation (stops GPU burn from abandoned tabs)
+GEN_MAX = 45 * 60          # s; hard cap on one generation
+DONE_TTL = 10 * 60         # s; keep a finished buffer for a late reattach
+_janitor_task = None
+
+def _sse(obj: dict) -> str: return 'data: ' + json.dumps(obj) + '\n\n'
+
+class _Gen:
+  def __init__(self, gid: str):
+    self.gid = gid
+    self.frames: list = []     # ready-to-send SSE strings, append-only; frame number (seq) = index + 1
+    self.seq = 0
+    self.done = False
+    self.task = None
+    self.tailers = 0
+    self.started = self.last_consumer = time.monotonic()
+    self.done_at = None
+    self.cond = asyncio.Condition()
+
+async def _gen_push(g, ev: str):
+  line = ev.strip()
+  if not line.startswith('data: '): return
+  body = line[6:]
+  async with g.cond:
+    g.seq += 1
+    if body != '[DONE]':
+      try:
+        obj = json.loads(body); obj['seq'] = g.seq; body = json.dumps(obj)
+      except Exception: pass
+    g.frames.append('data: ' + body + '\n\n')
+    g.cond.notify_all()
+
+async def _gen_finish(g, fail=None):
+  async with g.cond:
+    if g.done: return
+    if fail:
+      g.seq += 1
+      g.frames.append(_sse({'type': 'fail', 'message': fail, 'seq': g.seq}))
+    g.done = True; g.done_at = time.monotonic()
+    g.cond.notify_all()
+
+async def _gen_worker(g, agen):
+  '''Runs outside any request: no client socket can cancel it. agen is your existing generate().'''
+  global ACTIVE
+  ACTIVE += 1
+  t0 = time.monotonic(); why = 'finished'; saw_done = False
+  try:
+    async for ev in agen:
+      if ev.strip() == 'data: [DONE]': saw_done = True
+      await _gen_push(g, ev)
+    await _gen_finish(g, None if saw_done else 'ended without completion')
+  except asyncio.CancelledError:
+    why = 'CANCELLED'; await _gen_finish(g, 'cancelled'); raise
+  except Exception as e:
+    why = f'ERROR {e!r}'; await _gen_finish(g, 'generation failed')
+  finally:
+    ACTIVE -= 1
+    if not g.done: g.done = True; g.done_at = time.monotonic()
+    print(f'[gen end] {why} after {time.monotonic() - t0:.1f}s, {g.seq} frames', flush=True)
+
+async def _gen_tail(g, since: int):
+  '''The push channel. Replays frames after `since`, then follows live. A client disconnect ends only this
+  generator. meta, ping and rotate are connection-local: never buffered, carry no seq.'''
+  g.tailers += 1
+  t_start = time.monotonic()
+  try:
+    yield _sse({'type': 'meta', 'gen': g.gid, 'len': len(g.frames), 'done': g.done})
+    i = max(0, since)
+    while True:
+      g.last_consumer = time.monotonic()
+      async with g.cond:
+        if i >= len(g.frames) and not g.done:
+          try: await asyncio.wait_for(g.cond.wait_for(lambda: len(g.frames) > i or g.done), timeout=PING_EVERY)
+          except asyncio.TimeoutError: pass
+      while i < len(g.frames):       # appends only grow the list, so this drain cannot race the worker
+        yield g.frames[i]; i += 1
+      if g.done and i >= len(g.frames): return
+      if time.monotonic() - t_start > ROTATE_AFTER:
+        yield 'data: {"type":"rotate"}\n\n'; return
+      if i >= len(g.frames): yield 'data: {"type":"ping"}\n\n'
+  finally:
+    g.tailers -= 1
+
+async def _janitor():
+  while True:
+    await asyncio.sleep(15)
+    now = time.monotonic()
+    for gid, g in list(GENS.items()):
+      if not g.done:
+        if (g.tailers == 0 and now - g.last_consumer > CONSUMER_TTL) or now - g.started > GEN_MAX:
+          print(f'[janitor] cancelling {gid[:8]}: no listener or over the time cap', flush=True)
+          if g.task is not None: g.task.cancel()
+      elif g.done_at is not None and now - g.done_at > DONE_TTL:
+        GENS.pop(gid, None)
+# ---------------- end [RESUMABLE_STREAM] ----------------
+
 api = FastAPI()
 client = AsyncOpenAI(base_url=f'http://127.0.0.1:{PORT}/v1', api_key='None')
 
@@ -358,7 +459,9 @@ async def with_keepalive(agen, interval: float = 5):
     print(f'[stream end] {why} after {time.monotonic() - t0:.1f}s, {sent} chunks', flush=True)   # added
 
 @api.post("/chat")
-async def chat(request: dict, x_session_id: Optional[str] = Header(default='default')):
+async def chat(request: dict, x_session_id: Optional[str] = Header(default='default'), 
+  x_gen_id: Optional[str] = Header(default=None)  # [RESUMABLE_STREAM]
+):   
   async def _():
     if not await _llama_ready(): raise HTTPException(503, "model loading")
     # token = request.get("token")
@@ -574,8 +677,27 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
           yield f"data: {json.dumps(usage)}\n\n"
           yield "data: [DONE]\n\n"
           break
-    return StreamingResponse(with_keepalive(generate()), media_type="text/event-stream")
+    # [RESUMABLE_STREAM] the generation runs in a task no socket owns; this request only tails its buffer
+    gid = x_gen_id if (x_gen_id and re.fullmatch(r'[0-9a-fA-F-]{16,64}', x_gen_id)) else uuid.uuid4().hex
+    if gid in GENS: raise HTTPException(409, 'generation id already used')
+    for og in GENS.values():   # --parallel 1 means one slot: a leftover generation would block this one
+      if not og.done and og.task is not None: og.task.cancel()
+    while len(GENS) >= MAX_GENS: GENS.pop(next(iter(GENS)), None)
+    global _janitor_task
+    if _janitor_task is None or _janitor_task.done(): _janitor_task = asyncio.create_task(_janitor())
+    g = _Gen(gid)
+    GENS[gid] = g
+    g.task = asyncio.create_task(_gen_worker(g, generate()))
+    return StreamingResponse(_gen_tail(g, 0), media_type="text/event-stream",
+      headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
   return await _guarded(_)
+
+@api.get("/v1/stream")
+async def stream_resume(gen: str, since: int = 0): # [RESUMABLE_STREAM]
+  g = GENS.get(gen)
+  if g is None: raise HTTPException(404, 'no such generation')   # restarted or evicted: the client falls back to a full resend
+  return StreamingResponse(_gen_tail(g, max(0, since)), media_type='text/event-stream',
+    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
 
 # =================================================================
 # Tools (web_search and web_fetch using rust binaries baked into image.)
