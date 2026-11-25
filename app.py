@@ -324,6 +324,70 @@ async def _janitor():
         GENS.pop(gid, None)
 # ---------------- end [RESUMABLE_STREAM] ----------------
 
+# ---------------- [STATS] per-generation statistics ----------------
+STATS_PROGRESS = True      # ask llama.cpp for prompt_progress chunks (needed for the prefill start/end speed)
+
+class _Round:
+  '''One llama-server call. A reply that uses tools is several rounds.'''
+  def __init__(self):
+    self.t0 = time.monotonic(); self.t_first = None; self.t_end = None
+    self.timings = None        # llama.cpp timings object (last chunk), when present
+    self.samples = []          # [(processed tokens, ms since the prompt started)] from return_progress
+    self.pt = self.ct = 0      # prompt / completion tokens from the usage chunk
+
+  def see(self, chunk):
+    '''Call for EVERY chunk, before any filtering.'''
+    tm = getattr(chunk, 'timings', None)
+    if isinstance(tm, dict): self.timings = tm
+    pp = getattr(chunk, 'prompt_progress', None)
+    if isinstance(pp, dict):
+      try: self.samples.append((int(pp['processed']), float(pp['time_ms'])))
+      except Exception: pass
+    u = getattr(chunk, 'usage', None)
+    if u: self.pt, self.ct = u.prompt_tokens, u.completion_tokens
+
+  def token(self):
+    if self.t_first is None: self.t_first = time.monotonic()
+
+def _prefill_curve(samples):
+  '''(first_tps, last_tps, curve) from cumulative samples. Speeds come from differences, so a cached prefix cancels out.'''
+  pts = []
+  for (p1, t1), (p2, t2) in zip(samples, samples[1:]):
+    if t2 > t1 and p2 > p1: pts.append((p2, (p2 - p1) / (t2 - t1) * 1000.0))
+  if not pts: return None, None, []
+  step = max(1, len(pts) // 16)
+  return round(pts[0][1], 1), round(pts[-1][1], 1), [[p, round(v, 1)] for p, v in pts[::step]]
+
+def _stats(rounds, t_request):
+  pre_tok = pre_ms = dec_tok = dec_ms = cached = drafted = accepted = 0.0
+  have_timings = False; ttft = None
+  for k, r in enumerate(rounds):
+    tm = r.timings or {}
+    if tm: have_timings = True
+    # prefill: engine numbers when present, else wall clock up to the first generated token
+    pre_tok += tm.get('prompt_n', r.pt) or 0
+    pre_ms += tm.get('prompt_ms') or ((r.t_first - r.t0) * 1000 if r.t_first else 0)
+    cached += tm.get('cache_n', 0) or 0
+    dec_tok += tm.get('predicted_n', r.ct) or 0
+    dec_ms += tm.get('predicted_ms') or ((r.t_end - r.t_first) * 1000 if (r.t_first and r.t_end) else 0)
+    drafted += tm.get('draft_n', 0) or 0
+    accepted += tm.get('draft_n_accepted', 0) or 0
+    if k == 0 and r.t_first: ttft = (r.t_first - t_request) * 1000
+  best = max(rounds, key=lambda r: len(r.samples)) if rounds else None
+  first_tps, last_tps, curve = _prefill_curve(best.samples) if best else (None, None, [])
+  return {
+    'engine_timings': have_timings,
+    'ttft_ms': round(ttft) if ttft is not None else None,
+    'prefill': {'tokens': int(pre_tok), 'cached': int(cached), 'ms': round(pre_ms),
+      'avg_tps': round(pre_tok / pre_ms * 1000, 1) if pre_ms > 0 and pre_tok > 0 else None,   # [STATS] tok>0 guard: an all-tool-call round would otherwise show 0 t/s
+      'first_tps': first_tps, 'last_tps': last_tps, 'curve': curve},
+    'decode': {'tokens': int(dec_tok), 'ms': round(dec_ms),
+      'avg_tps': round(dec_tok / dec_ms * 1000, 1) if dec_ms > 0 and dec_tok > 0 else None},
+    'spec': ({'drafted': int(drafted), 'accepted': int(accepted), 'rate': round(accepted / drafted, 3)} if drafted else None),
+    'rounds': len(rounds),
+  }
+# ---------------- end [STATS] ----------------
+
 api = FastAPI()
 client = AsyncOpenAI(base_url=f'http://127.0.0.1:{PORT}/v1', api_key='None')
 
@@ -507,7 +571,7 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
     standard = {k: v for k, v in params.items() if k in OPENAI_PARAMS}
     extra    = {k: v for k, v in params.items() if k not in OPENAI_PARAMS}
     # The model reads reasoning_effort from the chat template kwargs; the top-level field is sent too.
-    extra_body = {**extra, "chat_template_kwargs": {"reasoning_effort": reasoning_effort}}
+    extra_body = {**extra, "chat_template_kwargs": {"reasoning_effort": reasoning_effort}, "return_progress": STATS_PROGRESS}   # [STATS]
 
     # Remove dk, keep client_ek until stream pre-key is computed.
     encap_res = await _run_mlkem("encapsulate-and-encrypt", "--from-stdin",
@@ -545,15 +609,18 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
 
       loop_start = time.monotonic()
       tot_prompt_toks = tot_compl_toks = 0
+      stat_rounds = []   # [STATS] one _Round per llama call
 
       while True:
         acc_tool_calls: dict = {}
         finish_reason = None
+        rs = _Round(); stat_rounds.append(rs)   # [STATS]
         stream = await client.chat.completions.create(model=MODEL_NAME, messages=messages,
           tools=TOOLS, tool_choice="auto", stream=True, stream_options={"include_usage": True},
           reasoning_effort=reasoning_effort, extra_body=extra_body, **standard)
         async for chunk in stream:
-          if not chunk.choices:
+          rs.see(chunk)   # [STATS] progress/timings/usage chunks may have no choices: look before filtering
+          if not getattr(chunk, 'choices', None):
             if chunk.usage:  # usage arrives in a final chunk with empty choices.
               tot_prompt_toks += chunk.usage.prompt_tokens
               tot_compl_toks  += chunk.usage.completion_tokens
@@ -566,6 +633,7 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
           # `if raw:` (not raw.strip()) so newline-only deltas between paragraphs aren't dropped.
           raw = getattr(delta, 'reasoning_content', None) or getattr(delta, 'reasoning', None)
           if raw and strip_r is not None: raw = strip_r.feed(raw)   # [SALAD_BROKEN_STREAM] drop the echoed copy of what we sent
+          if raw or delta.content or delta.tool_calls: rs.token()   # [STATS] the first generated token ends the prefill
           if raw:
             async for ev in _emit(t_buf, "text"): yield ev  # flush text if switching back.
             r_buf.append(raw)
@@ -593,6 +661,7 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
               if fn and fn.name: acc_tool_calls[i]["name"] = fn.name
               if fn and fn.arguments: acc_tool_calls[i]["arguments"] += fn.arguments
 
+        rs.t_end = time.monotonic()   # [STATS] end of this llama call
         if strip_r is not None:   # [SALAD_BROKEN_STREAM] the echo only exists on the first llama call
           tail = strip_r.flush()
           if tail: r_buf.append(tail)
@@ -673,7 +742,10 @@ async def chat(request: dict, x_session_id: Optional[str] = Header(default='defa
           usage = {'type': 'usage', 'prompt_tokens': tot_prompt_toks,
             'completion_tokens': tot_compl_toks, 'total_tokens': tot_prompt_toks + tot_compl_toks,
             'elapsed_s': round(elapsed, 1),
-            'tps': round(tot_compl_toks / elapsed, 1) if elapsed else 0}
+            'tps': round(tot_compl_toks / elapsed, 1) if elapsed else 0,
+            'model': MODEL_NAME}   # [STATS] so the client's CSV model column needs no settings lookup
+          try: usage['stats'] = _stats(stat_rounds, loop_start)   # [STATS] never let statistics break a reply
+          except Exception as e: print(f'[stats] failed: {e!r}', flush=True)
           yield f"data: {json.dumps(usage)}\n\n"
           yield "data: [DONE]\n\n"
           break
