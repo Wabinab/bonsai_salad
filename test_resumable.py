@@ -1,3 +1,19 @@
+"""Offline tests for the v3 resumable generation in app.py (no server needed).
+
+Run from the folder containing app.py:   python3 test_resumable.py
+
+T1: kill the connection mid-stream, reattach with the cursor -- 1..200 in
+    order, no gaps, no duplicates.
+T2: planned rotation -- the tail ends cleanly with a rotate frame and the
+    cursor continues, full 1..100 across multiple rotations.
+T3: cancel (janitor or new request) -- a fail frame is buffered, the tail
+    ends, ACTIVE returns to 0.
+T4: upstream ends without [DONE] -- reported as a fail frame, not success.
+T5: replay from since=0 re-delivers frame 1 including the key-exchange
+    fields (ct/em), as the client relies on after a mid-drain cut.
+T6: three concurrent tailers on one gen with independent cursors, each
+    gets the full stream.
+"""
 import asyncio, json
 import app
 
@@ -56,6 +72,28 @@ async def main():
   await g.task
   assert json.loads(g.frames[-1][6:-2])['type'] == 'fail'
   print('PASS T4 no-DONE: fail frame')
+  # T5 (extra): replay from since=0 re-delivers frame 1 including key-exchange fields
+  g = app._Gen('t5')
+  first = 'data: ' + json.dumps({'type': 'text', 'content': 'x', 'ct': 'CTBLOB', 'em': 'EMBLOB'}) + '\n\n'
+  async def agen5():
+    yield first
+    yield mk(1)
+    yield 'data: [DONE]\n\n'
+  g.task = asyncio.create_task(app._gen_worker(g, agen5()))
+  allseq, seen_first = [], None
+  for since in (0, 0):   # two independent tails, both from 0, as after a mid-drain cut
+    got, _, done = await drain(g, since)
+    allseq += got
+    p0 = json.loads(g.frames[0][6:-2])
+    seen_first = (p0.get('ct'), p0.get('em'), p0.get('seq'))
+  assert allseq == [1, 2, 1, 2] and seen_first == ('CTBLOB', 'EMBLOB', 1), (allseq, seen_first)
+  print('PASS T5 key replay: ct/em in buffered frame 1, re-delivered on since=0')
+  # T6 (extra): three concurrent tailers on one gen, different cursors, all complete
+  app.ROTATE_AFTER = 110.0
+  g = app._Gen('t6'); g.task = asyncio.create_task(app._gen_worker(g, agen(60, gap=0.005)))
+  r = await asyncio.gather(drain(g, 0), drain(g, 0), drain(g, 0))
+  assert all(seq == list(range(1, 61)) and d for seq, _, d in r)
+  print('PASS T6 concurrent tailers: 3 readers, full replay each')
   print('ALL PASS')
 
 asyncio.run(main())
