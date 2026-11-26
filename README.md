@@ -110,3 +110,13 @@ docker push ghcr.io/wabinab/bonsai:plain-0.1
 git ls-remote https://github.com/xyznq1/xyz-llama HEAD                    # pick a SHA
 git ls-remote https://github.com/PrismML-Eng/llama.cpp refs/heads/prism
 ``` 
+
+## **Start with this when renting on Verda**
+```bash
+sudo apt-get update && sudo apt-get install -y docker.io git tmux
+sudo usermod -aG docker $USER && newgrp docker
+df -h /var/lib/docker          # want 100+ GB free
+tmux new -s build              # an SSH drop will not kill the build
+```
+
+Then you should know the rest already. 
