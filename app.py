@@ -1,3 +1,10 @@
+"""
+TODO: The STATS generation currently only return the final line, but that's not true, because the model may call tools, 
+the frontend and backend may break connection and needs resuming, etc that causes the reported statistics to break into 
+multiple parts. . The solution is therefore to capture all stats 'after the end of a turn' and sum/average them out 
+rather than only 'pick the last tag'. 
+"""
+
 import asyncio, base64, difflib, glob, json, os, signal, subprocess, re, time, uuid
 import httpx
 # from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
