@@ -19,7 +19,7 @@ server-context.cpp
   B1/B2   : (optional, APPLY_B=1) text-only fast path in prepare_speculative_draft().
 
 common/speculative.cpp
-  D2      : the mirror loop skips a ubatch that cannot continue ctx_dft's KV contiguously
+  D2      : the mirror loop skips a ubatch that cannot continue ctx_dft's KV (or its stash) contiguously
             (everything after a media chunk: the target uses M-RoPE-compressed positions).
   E       : stash_flush() does not try to decode stale rows that cannot continue ctx_dft's KV.
 """
@@ -148,21 +148,28 @@ D2_NEW = r"""// xyz fork (D2): skip the mirror for a ubatch that cannot continue
                         break;
                     }
                 }
-                llama_pos first_needed;
-                if (n_stash > 0) {
-                    first_needed = stash_rows[seq_id].front().pos;
-                } else if (pending_pos >= 0 && pending_pos + 1 == batch_in.pos[beg] && pending_pos > dft_mem_max) {
-                    first_needed = pending_pos;
+                // the first row this call needs ctx_dft (or its stash) to continue with
+                llama_pos next_needed;
+                if (pending_pos >= 0 && pending_pos + 1 == batch_in.pos[beg] &&
+                        pending_pos > std::max(dft_mem_max, stashed_pos_max)) {
+                    next_needed = pending_pos;
                 } else if (end > beg) {
-                    first_needed = batch_in.pos[beg];
+                    next_needed = batch_in.pos[beg];
                 } else {
-                    first_needed = batch_in.pos[end];
+                    next_needed = batch_in.pos[end];
                 }
-                if (!rows_increasing || (dft_mem_max >= 0 && first_needed != dft_mem_max + 1)) {
+                // the last row ctx_dft holds, or has queued in its stash (stashed_pos_max is -1 when the stash is empty).
+                // Checking only the stash's FRONT is not enough: rows appended behind a stash that ends before a
+                // media chunk would leave a hole inside the stash, and flushing it fails ("positions are not continuous").
+                const llama_pos last_pos = std::max(dft_mem_max, stashed_pos_max);
+                const bool stash_ok = n_stash == 0 || dft_mem_max < 0 || stash_rows[seq_id].front().pos == dft_mem_max + 1;
+                const bool next_ok  = last_pos < 0 || next_needed == last_pos + 1;
+                if (!rows_increasing || !stash_ok || !next_ok) {
                     static int n_logged = 0;
-                    if (n_logged++ < 8) {
-                        fprintf(stderr, "xyz-mm: drafter mirror skipped (seq %d): first row %d, ctx_dft KV ends at %d, batch pos %d..%d\n",
-                                (int) seq_id, (int) first_needed, (int) dft_mem_max, (int) batch_in.pos[beg], (int) batch_in.pos[end]);
+                    if (n_logged++ < 16) {
+                        fprintf(stderr, "xyz-mm: drafter mirror skipped (seq %d): next row %d, ctx_dft/stash ends at %d (KV %d, stash %d rows), batch pos %d..%d\n",
+                                (int) seq_id, (int) next_needed, (int) last_pos, (int) dft_mem_max, (int) n_stash,
+                                (int) batch_in.pos[beg], (int) batch_in.pos[end]);
                     }
                     continue;
                 }
