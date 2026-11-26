@@ -21,8 +21,9 @@ build () {   # $1 = APPLY_B, $2 = tag
 : > xyz-build.log
 {
   echo "=== BUILD A (APPLY_B=0) ==="  && build 0 xyz-mm-a-$VER  &&
-  echo "=== BUILD A+B (APPLY_B=1) ===" && build 1 xyz-mm-ab-$VER &&
+  # echo "=== BUILD A+B (APPLY_B=1) ===" && build 1 xyz-mm-ab-$VER &&
   echo "=== PUSH ===" &&
-  docker push $IMG:xyz-mm-a-$VER && docker push $IMG:xyz-mm-ab-$VER &&
-  echo "=== ALL DONE ==="
+  docker push $IMG:xyz-mm-a-$VER 
+  # && docker push $IMG:xyz-mm-ab-$VER 
+  && echo "=== ALL DONE ==="
 } 2>&1 | tee -a xyz-build.log
