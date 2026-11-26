@@ -104,3 +104,9 @@ echo $GHCR_PAT | docker login ghcr.io -u wabinab --password-stdin
 docker push ghcr.io/wabinab/bonsai:xyz-0.1
 docker push ghcr.io/wabinab/bonsai:plain-0.1
 ```
+
+## Getting the SHA
+```bash
+git ls-remote https://github.com/xyznq1/xyz-llama HEAD                    # pick a SHA
+git ls-remote https://github.com/PrismML-Eng/llama.cpp refs/heads/prism
+``` 
