@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 VER=0.2
 JOBS=16
 REPO=https://github.com/xyznq1/xyz-llama
-REF=<commit sha from xyznq1/xyz-llama>
+REF=f095f4dd559cdb742c9b3ed71b7131855179f935
 MMPROJ=Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf
 IMG=ghcr.io/wabinab/bonsai
 
