@@ -2,7 +2,7 @@
 set -o pipefail
 cd "$(dirname "$0")"
 
-VER=0.3
+VER=0.4
 JOBS=16
 REPO=https://github.com/xyznq1/xyz-llama
 REF=f095f4dd559cdb742c9b3ed71b7131855179f935
