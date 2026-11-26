@@ -20,6 +20,7 @@ build () {   # $1 = APPLY_B, $2 = tag
 
 : > xyz-build.log
 {
+  echo "=== VERSION: $VER ===" &&
   echo "=== BUILD A (APPLY_B=0) ==="  && build 0 xyz-mm-a-$VER  &&
   # echo "=== BUILD A+B (APPLY_B=1) ===" && build 1 xyz-mm-ab-$VER &&
   echo "=== PUSH ===" &&
