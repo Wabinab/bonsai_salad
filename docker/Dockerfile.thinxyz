@@ -1,0 +1,7 @@
+# build:  docker build -f Dockerfile.thin -t ghcr.io/wabinab/bonsai:xyz-mm-ab-0.5 .
+# needs next to this file: app_modal.py (already patched with patch_app.py)
+# Only one small layer is rebuilt; the model, llama.cpp and venv layers are reused.
+FROM ghcr.io/wabinab/bonsai:xyz-mm-ab-0.4
+# Source is app_modal.py, but the destination MUST stay /app/app.py: entrypoint.sh runs `python /app/app.py`.
+COPY app_modal.py /app/app.py
+RUN chmod +x /app/entrypoint.sh
